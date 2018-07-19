@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
+import argparse
 import logging
 import os
 import sys
 
 
 MODULE = os.path.basename(sys.argv[0])
-SHORT = 0
-LONG  = 1
-ARG   = 2
-MEAN  = 3
-OPT_H = ("-h", "--help", "", "Print this help, and exit.")
-OPT_V = ("-v", "--version", "", "Print the version, and exit.")
-OPT_C = ("-c", "--conf", "<conf.yml>", "Set \"conf.yml\" as the YAML configuration file.")
+
+
+# parser
+parser = argparse.ArgumentParser(prog=MODULE, description="Predict and simulate putative RNA triplexes.")
+parser.add_argument("-v", "--version", help="print the version and exit", action="version", version="%(prog)s 0.1")
+parser.add_argument("-c", "--conf", metavar="CONF", help="set %(metavar)s as the configuration file (default: %(default)s)", default="conf.yaml", type=argparse.FileType('r'))
 
 
 # logger
@@ -26,7 +26,7 @@ logging.basicConfig(
     format = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
     datefmt = "%Y-%m-%d %H:%M",
     filename = LOGFILE,
-    filemode = "a")
+    filemode = "w")
 
 
 # console logger
@@ -37,12 +37,6 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
-def usage():
-    logger.info("Usage: %s [option] <file>", MODULE)
-    logger.info("Synopsis: Predict and simulate putative RNA triplexes.")
-    logger.info("Options:")
-    logger.info("  %s | %s\t\t\t %s", OPT_H[SHORT], OPT_H[LONG], OPT_H[MEAN])
-    logger.info("  %s | %s\t\t %s", OPT_V[SHORT], OPT_V[LONG], OPT_V[MEAN])
-    logger.info("  %s | %s %s\t %s", OPT_C[SHORT], OPT_C[LONG], OPT_C[ARG], OPT_C[MEAN])
-
-usage()
+args = parser.parse_args()
+if len(sys.argv) == 1:
+    parser.print_help(file=sys.stderr)
