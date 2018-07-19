@@ -4,11 +4,14 @@ import logging
 import os
 import sys
 
+
 MODULE = os.path.basename(sys.argv[0])
 SHORT = 0
 LONG  = 1
 MEAN  = 2
 OPT_H = ("-h", "--help", "Print this help, and exit.")
+OPT_V = ("-v", "--version", "Print the version, and exit.")
+
 
 # logger
 logger = logging.getLogger(MODULE)
@@ -36,6 +39,7 @@ def usage():
     logger.info("Usage: %s [option] <file>", MODULE)
     logger.info("Synopsis: Predict and simulate putative RNA triplexes.")
     logger.info("Options:")
-    logger.info("  %s | %s \t %s", OPT_H[SHORT], OPT_H[LONG], OPT_H[MEAN])
+    logger.info("  %s | %s \t\t %s", OPT_H[SHORT], OPT_H[LONG], OPT_H[MEAN])
+    logger.info("  %s | %s \t %s", OPT_V[SHORT], OPT_V[LONG], OPT_V[MEAN])
 
 usage()
