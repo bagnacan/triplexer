@@ -6,13 +6,25 @@ import os
 import sys
 
 
+VERSION = "0.1"
 MODULE = os.path.basename(sys.argv[0])
 
 
 # parser
 parser = argparse.ArgumentParser(prog=MODULE, description="Predict and simulate putative RNA triplexes.")
-parser.add_argument("-v", "--version", help="print the version and exit", action="version", version="%(prog)s 0.1")
-parser.add_argument("-c", "--conf", metavar="CONF", help="set %(metavar)s as the configuration file (default: %(default)s)", default="conf.yaml", type=argparse.FileType('r'))
+parser.add_argument("-v", "--version", help="print the version and exit", action="version", version=str("%(prog)s " + VERSION))
+parser.add_argument("-i", "--init", metavar="CONF", help="set %(metavar)s as the init configuration file (default: %(default)s)", default="conf.yaml", type=argparse.FileType("r"))
+
+parser_to = parser.add_argument_group("target organism data")
+parser_to.add_argument("-o", "--org", metavar="ORG", help="set %(metavar)s as the target organism")
+parser_to.add_argument("-n", "--ns", metavar="NS", help="set %(metavar)s as the target organism's namespace")
+parser_to.add_argument("-g", "--genome", metavar="GEN", help="set %(metavar)s as the target organism's genome release")
+parser_to.add_argument("-f", "--file", metavar="FILE", help="set %(metavar)s as the target organism's source dataset file", type=argparse.FileType("r"))
+
+parser_op = parser.add_argument_group("operations")
+parser_op.add_argument("-c", "--cache", help="cache the provided source dataset", action="store_true")
+parser_op.add_argument("-p", "--predict", help="predict putative triplexes", action="store_true")
+parser_op.add_argument("-s", "--simulate", help="simulate the stability of predicted putative triplexes", action="store_true")
 
 
 # logger
