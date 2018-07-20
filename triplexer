@@ -10,21 +10,48 @@ VERSION = "0.1"
 MODULE = os.path.basename(sys.argv[0])
 
 
+# options
+OPT_ORGANISM       = "org"
+OPT_ORGANISM_SHORT = str("-" + OPT_ORGANISM[:1])
+OPT_ORGANISM_EXT   = str("--" + OPT_ORGANISM)
+OPT_NAMESPACE       = "ns"
+OPT_NAMESPACE_SHORT = str("-" + OPT_NAMESPACE[:1])
+OPT_NAMESPACE_EXT   = str("--" + OPT_NAMESPACE)
+OPT_GENOME       = "genome"
+OPT_GENOME_SHORT = str("-" + OPT_GENOME[:1])
+OPT_GENOME_EXT   = str("--" + OPT_GENOME)
+OPT_FILE       = "file"
+OPT_FILE_SHORT = str("-" + OPT_FILE[:1])
+OPT_FILE_EXT   = str("--" + OPT_FILE)
+OPT_CACHE             = "cache"
+OPT_CACHE_SHORT       = str("-" + OPT_CACHE[:1])
+OPT_CACHE_EXT         = str("--" + OPT_CACHE)
+OPT_CACHE_REQUIRE     = [OPT_ORGANISM, OPT_NAMESPACE, OPT_GENOME, OPT_FILE]
+OPT_CACHE_REQUIRE_CLI = [OPT_ORGANISM_SHORT, OPT_NAMESPACE_SHORT, OPT_GENOME_SHORT, OPT_FILE_SHORT]
+OPT_PREDICT       = "predict"
+OPT_PREDICT_SHORT = str("-" + OPT_PREDICT[:1])
+OPT_PREDICT_EXT   = str("--" + OPT_PREDICT)
+OPT_SIMULATE       = "simulate"
+OPT_SIMULATE_SHORT = str("-" + OPT_SIMULATE[:1])
+OPT_SIMULATE_EXT   = str("--" + OPT_SIMULATE)
+
+# dependency options
+
 # parser
 parser = argparse.ArgumentParser(prog=MODULE, description="Predict and simulate putative RNA triplexes.")
 parser.add_argument("-v", "--version", help="print the version and exit", action="version", version=str("%(prog)s " + VERSION))
 parser.add_argument("-i", "--init", metavar="CONF", help="set %(metavar)s as the init configuration file (default: %(default)s)", default="conf.yaml", type=argparse.FileType("r"))
 
 parser_to = parser.add_argument_group("target organism data")
-parser_to.add_argument("-o", "--org", metavar="ORG", help="set %(metavar)s as the target organism")
-parser_to.add_argument("-n", "--ns", metavar="NS", help="set %(metavar)s as the target organism's namespace")
-parser_to.add_argument("-g", "--genome", metavar="GEN", help="set %(metavar)s as the target organism's genome release")
-parser_to.add_argument("-f", "--file", metavar="FILE", help="set %(metavar)s as the target organism's source dataset file", type=argparse.FileType("r"))
+parser_to.add_argument(OPT_ORGANISM_SHORT, OPT_ORGANISM_EXT, metavar="ORG", help="set %(metavar)s as the target organism")
+parser_to.add_argument(OPT_NAMESPACE_SHORT, OPT_NAMESPACE_EXT, metavar="NS", help="set %(metavar)s as the target organism's namespace")
+parser_to.add_argument(OPT_GENOME_SHORT, OPT_GENOME_EXT, metavar="GEN", help="set %(metavar)s as the target organism's genome release")
+parser_to.add_argument(OPT_FILE_SHORT, OPT_FILE_EXT, metavar="FILE", help="set %(metavar)s as the target organism's source dataset file", type=argparse.FileType("r"))
 
 parser_op = parser.add_argument_group("operations")
-parser_op.add_argument("-c", "--cache", help="cache the provided source dataset", action="store_true")
-parser_op.add_argument("-p", "--predict", help="predict putative triplexes", action="store_true")
-parser_op.add_argument("-s", "--simulate", help="simulate the stability of predicted putative triplexes", action="store_true")
+parser_op.add_argument(OPT_CACHE_SHORT, OPT_CACHE_EXT, action="store_true", help=str("cache the provided source dataset (requires options " + ", ".join( str(x) for x in OPT_CACHE_REQUIRE_CLI) + ")"))
+parser_op.add_argument(OPT_PREDICT_SHORT, OPT_PREDICT_EXT, action="store_true", help="predict putative triplexes")
+parser_op.add_argument(OPT_SIMULATE_SHORT, OPT_SIMULATE_EXT, action="store_true", help="simulate the stability of predicted putative triplexes")
 
 
 # logger
@@ -49,6 +76,31 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
-args = parser.parse_args()
-if len(sys.argv) == 1:
-    parser.print_help(file=sys.stderr)
+#
+# main
+#
+if __name__ == "__main__":
+
+    # parse the comman dline invocation:
+    args, non_args = parser.parse_known_args()
+
+    # unrecognised arguments or no options
+    # ==> print the help and exit
+    if non_args or len(sys.argv) == 1:
+        parser.print_help(file=sys.stderr)
+
+
+    options = dict(vars(args))
+
+
+    # operation cache
+    if OPT_CACHE in args:
+        opt_cache_provide = [x for x in OPT_CACHE_REQUIRE if options[x] is not None]
+
+        # ceck whether the mandatory options are provided
+        if set(opt_cache_provide) != set(OPT_CACHE_REQUIRE):
+            logger.error("Missing required options.")
+            parser.print_help(file=sys.stderr)
+            sys.exit(2)
+        else:
+            logger.info("Operation " + OPT_CACHE + " launched")
