@@ -12,22 +12,89 @@ MODULE = os.path.basename(sys.argv[0])
 
 
 # parser
-parser = argparse.ArgumentParser(prog=MODULE, description="Predict and simulate putative RNA triplexes.")
-parser.add_argument("-v", "--version", help="print the version and exit", action="version", version=str("%(prog)s " + VERSION))
-parser.add_argument("-i", "--init", metavar="CONF", help="set %(metavar)s as the init configuration file (default: %(default)s)", default="conf.yaml", type=argparse.FileType("r"))
-parser.add_argument(OPT_LOCATION_SHORT, OPT_LOCATION_EXT, metavar="STORE", help="set %(metavar)s as the location for all intermediate results (default: %(default)s)", default="127.0.0.1:6379")
-parser.add_argument(OPT_LOCATION_DB_SHORT, OPT_LOCATION_DB_EXT, metavar="DB", help="set %(metavar)s as the location database for all intermediate results (default: %(default)s)", default="0")
-
+parser = argparse.ArgumentParser(
+    prog=MODULE,
+    description="Predict and simulate putative RNA triplexes."
+)
+parser.add_argument(
+    "-v",
+    "--version",
+    action="version",
+    version=str("%(prog)s " + VERSION),
+    help="print the version and exit"
+)
+parser.add_argument(
+    "-i",
+    "--init",
+    metavar="CONF",
+    default="conf.yaml",
+    type=argparse.FileType("r"),
+    help="set %(metavar)s as the init configuration file (default: %(default)s)"
+)
+parser.add_argument(
+    OPT_LOCATION_SHORT,
+    OPT_LOCATION_EXT,
+    metavar="STORE",
+    default="127.0.0.1:6379",
+    help="set %(metavar)s as the location for all intermediate results (default: %(default)s)"
+)
+parser.add_argument(
+    OPT_LOCATION_DB_SHORT,
+    OPT_LOCATION_DB_EXT,
+    metavar="DB",
+    default="0",
+    help="set %(metavar)s as the location database for all intermediate results (default: %(default)s)"
+)
+# organism data parser
 parser_to = parser.add_argument_group("target organism data")
-parser_to.add_argument(OPT_ORGANISM_SHORT, OPT_ORGANISM_EXT, metavar="ORG", help="set %(metavar)s as the target organism")
-parser_to.add_argument(OPT_NAMESPACE_SHORT, OPT_NAMESPACE_EXT, metavar="NS", help="set %(metavar)s as the target organism's namespace")
-parser_to.add_argument(OPT_GENOME_SHORT, OPT_GENOME_EXT, metavar="GEN", help="set %(metavar)s as the target organism's genome release")
-parser_to.add_argument(OPT_FILE_SHORT, OPT_FILE_EXT, metavar="FILE", help="set %(metavar)s as the target organism's source dataset file", type=argparse.FileType("r"))
-
+parser_to.add_argument(
+    OPT_ORGANISM_SHORT,
+    OPT_ORGANISM_EXT,
+    metavar="ORG",
+    help="set %(metavar)s as the target organism"
+)
+parser_to.add_argument(
+    OPT_NAMESPACE_SHORT,
+    OPT_NAMESPACE_EXT,
+    metavar="NS",
+    help="set %(metavar)s as the target organism's namespace"
+)
+parser_to.add_argument(
+    OPT_GENOME_SHORT,
+    OPT_GENOME_EXT,
+    metavar="GEN",
+    help="set %(metavar)s as the target organism's genome release"
+)
+parser_to.add_argument(
+    OPT_FILE_SHORT,
+    OPT_FILE_EXT,
+    metavar="FILE",
+    type=(lambda x: is_a_file(parser, x)),
+    help="set %(metavar)s as the target organism's source dataset file"
+)
+# operation parser
 parser_op = parser.add_argument_group("operations")
-parser_op.add_argument(OPT_CACHE_SHORT, OPT_CACHE_EXT, action="store_true", help=str("cache the provided source dataset (requires options " + ", ".join( str(x) for x in OPT_CACHE_REQUIRE_CLI) + ")"))
-parser_op.add_argument(OPT_PREDICT_SHORT, OPT_PREDICT_EXT, action="store_true", help="predict putative triplexes")
-parser_op.add_argument(OPT_SIMULATE_SHORT, OPT_SIMULATE_EXT, action="store_true", help="simulate the stability of predicted putative triplexes")
+parser_op.add_argument(
+    OPT_CACHE_SHORT,
+    OPT_CACHE_EXT,
+    action="store_true",
+    help=str(
+        "cache the provided source dataset (requires options " +
+        ", ".join( str(x) for x in OPT_CACHE_REQUIRE_CLI) + ")"
+    )
+)
+parser_op.add_argument(
+    OPT_PREDICT_SHORT,
+    OPT_PREDICT_EXT,
+    action="store_true",
+    help="predict putative triplexes"
+)
+parser_op.add_argument(
+    OPT_SIMULATE_SHORT,
+    OPT_SIMULATE_EXT,
+    action="store_true",
+    help="simulate the stability of predicted putative triplexes"
+)
 
 
 # logger
@@ -52,6 +119,23 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
+
+#
+# check provided file is a file, and return its path
+#
+def is_a_file(parser, f):
+    """
+    Checks whether the provided file is a file and return its path.
+    """
+    if not os.path.isfile(f):
+        logger.error("Provided file %s is not a file", f)
+        parser.print_help(file=sys.stderr)
+        sys.exit(2)
+    else:
+        return os.path.realpath(f)
+
+
+
 #
 # main
 #
@@ -71,7 +155,10 @@ if __name__ == "__main__":
 
     # operation cache
     if OPT_CACHE in args:
-        opt_cache_provide = [x for x in OPT_CACHE_REQUIRE if options[x] is not None]
+        opt_cache_provide = [
+            x for x in OPT_CACHE_REQUIRE if options[x] is not None
+        ]
+        print(opt_cache_provide)
 
         # ceck whether the mandatory options are provided
         if set(opt_cache_provide) != set(OPT_CACHE_REQUIRE):
@@ -81,3 +168,4 @@ if __name__ == "__main__":
         else:
             logger.info("Operation " + OPT_CACHE + " launched")
             microrna_org.cache(options)
+
