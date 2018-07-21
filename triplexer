@@ -81,7 +81,7 @@ logging.getLogger("").addHandler(console)
 #
 if __name__ == "__main__":
 
-    # parse the comman dline invocation:
+    # parse the command line invocation:
     args, non_args = parser.parse_known_args()
 
     # unrecognised arguments or no options
