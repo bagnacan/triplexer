@@ -1,12 +1,10 @@
 import logging
-
-
-MODULE = "microrna.org"
-
+import redis
+from common import *
 
 
 # logger
-logger = logging.getLogger(MODULE)
+logger = logging.getLogger("microrna.org")
 
 
 
@@ -15,17 +13,18 @@ def cache(options):
     Caches the putative gene targets and miRNA pairs that comply to the
     formation constraints of an RNA triplex.
     """
-    global OPT_STORAGE
-    global OPT_ORGANISM
-    global OPT_GENOME
-    global OPT_FILE
+
+    # redis cache
+    logger.info("Setting up storage at %s", options[OPT_LOCATION])
+    cache = redis.StrictRedis(
+        host=options[OPT_LOCATION].split(":")[0],
+        port=options[OPT_LOCATION].split(":")[1],
+        db=options[OPT_LOCATION_DB])
 
     logger.info("Finding putative triplexes from microrna.org data")
 
     # caching namespace
-    namespace = ":".join(MODULE, options[OPT_ORGANISM], options[OPT_VERSION])
+    namespace = str(options[OPT_NAMESPACE] + ":" +  options[OPT_ORGANISM] + ":" + options[OPT_GENOME])
 
     # retrieve all duplexes, organising them by target gene
-    cache_duplexes(options[OPT_FILE], namespace, options[OPT_STORAGE])
-
-    
+    #cache_duplexes(options[OPT_FILE], namespace, options[OPT_STORAGE])
