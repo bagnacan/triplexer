@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import microrna_org
 import os
 import sys
 
@@ -104,3 +105,4 @@ if __name__ == "__main__":
             sys.exit(2)
         else:
             logger.info("Operation " + OPT_CACHE + " launched")
+            microrna_org.cache(opt_cache_provide)
