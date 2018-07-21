@@ -24,6 +24,9 @@ OPT_GENOME_EXT   = str("--" + OPT_GENOME)
 OPT_FILE       = "file"
 OPT_FILE_SHORT = str("-" + OPT_FILE[:1])
 OPT_FILE_EXT   = str("--" + OPT_FILE)
+OPT_LOCATION       = "location"
+OPT_LOCATION_SHORT = str("-" + OPT_LOCATION[:1])
+OPT_LOCATION_EXT   = str("--" + OPT_LOCATION)
 OPT_CACHE             = "cache"
 OPT_CACHE_SHORT       = str("-" + OPT_CACHE[:1])
 OPT_CACHE_EXT         = str("--" + OPT_CACHE)
@@ -42,6 +45,7 @@ OPT_SIMULATE_EXT   = str("--" + OPT_SIMULATE)
 parser = argparse.ArgumentParser(prog=MODULE, description="Predict and simulate putative RNA triplexes.")
 parser.add_argument("-v", "--version", help="print the version and exit", action="version", version=str("%(prog)s " + VERSION))
 parser.add_argument("-i", "--init", metavar="CONF", help="set %(metavar)s as the init configuration file (default: %(default)s)", default="conf.yaml", type=argparse.FileType("r"))
+parser.add_argument(OPT_LOCATION_SHORT, OPT_LOCATION_EXT, metavar="STORE", help="set %(metavar)s as the location for all intermediate results (default: %(default)s)", default="127.0.0.1:6379")
 
 parser_to = parser.add_argument_group("target organism data")
 parser_to.add_argument(OPT_ORGANISM_SHORT, OPT_ORGANISM_EXT, metavar="ORG", help="set %(metavar)s as the target organism")
