@@ -8,7 +8,9 @@ import argparse
 import logging
 import microrna_org
 import os
+import redis
 import sys
+import triplex
 from common import *
 
 
@@ -34,6 +36,13 @@ parser.add_argument(
     default="conf.yaml",
     type=argparse.FileType("r"),
     help="set %(metavar)s as the init configuration file (default: %(default)s)"
+)
+parser.add_argument(
+    OPT_CORES_SHORT,
+    OPT_CORES_EXT,
+    metavar="CORES",
+    default="2",
+    help="set %(metavar)s as the number of parallel execution cores (default: %(default)s)"
 )
 parser.add_argument(
     OPT_LOCATION_SHORT,
@@ -167,6 +176,19 @@ if __name__ == "__main__":
     options = dict(vars(args))
 
 
+    # check whether the underlying redis cache is reachable
+    logger.info("Checking redis cache at %s", options[OPT_LOCATION])
+    store = redis.StrictRedis(
+        host=options[OPT_LOCATION].split(SEPARATOR)[0],
+        port=options[OPT_LOCATION].split(SEPARATOR)[1],
+        db=options[OPT_LOCATION_DB])
+    try:
+        store.ping()
+    except redis.RedisError:
+        logger.error("Redis instance not running. Exiting")
+        sys.exit(2)
+
+
     # operation cache
     if options[OPT_CACHE]:
         opt_cache_provide = [
@@ -181,15 +203,16 @@ if __name__ == "__main__":
             )
             parser.print_help(file=sys.stderr)
             sys.exit(2)
-        else:
-            logger.info("Operation \"%s\" launched", OPT_CACHE)
-            microrna_org.cache(options)
+
+        logger.info("Operation \"%s\" launched", OPT_CACHE)
+        microrna_org.cache(store, options)
 
     # operation triplex
-    elif options[OPT_TRIPLEX]:
+    if options[OPT_TRIPLEX]:
         opt_triplex_provide = [
             x for x in OPT_TRIPLEX_REQUIRE if options[x] is not None
         ]
+
         # ceck whether the mandatory options are provided
         if set(opt_triplex_provide) != set(OPT_TRIPLEX_REQUIRE):
             logger.error(
@@ -200,5 +223,5 @@ if __name__ == "__main__":
             sys.exit(2)
         else:
             logger.info("Operation \"%s\" launched", OPT_TRIPLEX)
-            #microrna_org.cache(options)
+            triplex.filter(store, options)
 

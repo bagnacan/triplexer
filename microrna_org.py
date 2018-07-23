@@ -62,12 +62,6 @@ duplex = {
 }
 
 
-# Saetrom et al. 2007 (doi:10.1093/nar/gkm133) defined the following distance
-# binding range constraint for experimentally validated RNA triplexes
-SEED_MIN_DISTANCE = 13
-SEED_MAX_DISTANCE = 35
-
-
 # logger
 logger = logging.getLogger("microrna.org")
 
@@ -76,24 +70,11 @@ logger = logging.getLogger("microrna.org")
 #
 # cache the putative triplexes
 #
-def cache(options):
+def cache(store, options):
     """
     Caches the putative gene targets and miRNA pairs that comply to the
     formation constraints of an RNA triplex.
     """
-
-    # redis cache
-    logger.info("Setting up storage at %s", options[OPT_LOCATION])
-    cache = redis.StrictRedis(
-        host=options[OPT_LOCATION].split(SEPARATOR)[0],
-        port=options[OPT_LOCATION].split(SEPARATOR)[1],
-        db=options[OPT_LOCATION_DB])
-    try:
-        cache.ping()
-    except redis.RedisError:
-        logger.error("Redis instance not running. Exiting")
-        sys.exit(2)
-
 
     logger.info("Finding putative triplexes from microrna.org data")
 
@@ -104,14 +85,14 @@ def cache(options):
         options[OPT_GENOME])
 
     # retrieve all duplexes, organising them by target gene
-    cache_duplexes(options[OPT_FILE], namespace, cache)
+    cache_duplexes(store, options[OPT_FILE], namespace)
 
 
 
 #
 # read the microrna.org target prediction file
 #
-def cache_duplexes(in_file, namespace, cache):
+def cache_duplexes(store, in_file, namespace):
     """
     Reads the supplied microrna.org target prediction file, and retrieves a
     list of all stored duplexes.
@@ -122,79 +103,79 @@ def cache_duplexes(in_file, namespace, cache):
 
     logger.debug("  ### CACHE DUPLEXES starts ###")
 
-    if os.path.isfile(in_file):
+    logger.info("  Reading duplexes from %s ...", in_file)
 
-        logger.info("  Reading duplexes from %s ...", in_file)
+    # each line represents a duplex, holding a target id, a miRNA id, and all
+    # attributes related to the complex.
+    # Multiple lines can refer to the same target.
+    # Store each duplex in a target-specific redis set.
 
-        # each line represents a duplex, holding a target id, a miRNA id, and
-        # all attributes related to the complex.
-        # Multiple lines can refer to the same target.
-        # Store each duplex in a target-specific redis set.
+    with open(in_file, 'r') as in_file:
 
-        with open(in_file, 'r') as in_file:
+        # setup a redis set to contain all duplex's targets
+        targets = str(namespace + ":targets")
 
-            # setup a redis set to contain all duplex's targets
-            targets = str(namespace + ":targets")
+        for line in in_file:
 
-            for line in in_file:
+            count_lines += 1
 
-                count_lines += 1
+            if not line.startswith(CHAR_HEADING):
 
-                if not line.startswith(CHAR_HEADING):
+                count_duplexes += 1
 
-                    count_duplexes += 1
+                # create a redis hash to hold all attributes of the current
+                # duplex line.
+                # Each redis hash represents a duplex.
+                # Multiple duplexes can be relative to a same target.
+                logger.debug("    Reading duplex on line %d",
+                    count_lines)
 
-                    # create a redis hash to hold all attributes of the current
-                    # duplex line.
-                    # Each redis hash represents a duplex.
-                    # Multiple duplexes can be relative to a same target.
-                    logger.debug("    Reading duplex on line %d",
-                        count_lines)
+                target_hash = get_hash(line)
+                duplex = str(namespace +
+                    ":duplex:line" + str(count_lines))
+                target = str(namespace +
+                    ":target:" + target_hash[TRANSCRIPT_ID])
+                target_duplexes = str(namespace +
+                    ":target" + target_hash[TRANSCRIPT_ID] + ":duplexes")
 
-                    target_hash = get_hash(line)
-                    duplex = str(namespace +
-                        ":duplex:line" + str(count_lines))
-                    target = str(namespace +
-                        ":target:" + target_hash[TRANSCRIPT_ID])
-                    target_duplexes = str(namespace +
-                        ":target" + target_hash[TRANSCRIPT_ID] + ":duplexes")
+                # cache
+                try:
+                    # cache the dictionary representation of the current duplex
+                    # in a redis hash
+                    store.hmset(duplex, target_hash)
+                    logger.debug(
+                        "      Cached key-value pair duplex %s with attributes from line %d",
+                        duplex, count_lines
+                    )
 
-                    # cache
-                    try:
-                        # cache the dictionary representation of the current
-                        # duplex in a redis hash
-                        cache.hmset(duplex, target_hash)
-                        logger.debug("      Cached key-value pair duplex %s with attributes from line %d",
-                            duplex, count_lines)
+                    # cache the redis hash reference in a redis set of duplexes
+                    # sharing the same target
+                    store.sadd(target_duplexes, duplex)
+                    logger.debug(
+                        "      Cached duplex id %s as relative to target %s",
+                        duplex, target
+                    )
 
-                        # cache the redis hash reference in a redis set of
-                        # duplexes sharing the same target
-                        cache.sadd(target_duplexes, duplex)
-                        logger.debug("      Cached duplex id %s as relative to target %s",
-                            duplex, target)
+                    # cache the target in a redis set
+                    store.sadd(targets, target)
+                    logger.debug("      Cached target id %s", target)
 
-                        # cache the target in a redis set
-                        cache.sadd(targets, target)
-                        logger.debug("      Cached target id %s", target)
-
-                    except redis.ConnectionError:
-                        logger.error("    Redis cache not running. Exiting")
-                        sys.exit(1)
+                except redis.ConnectionError:
+                    logger.error("    Redis cache not running. Exiting")
+                    sys.exit(1)
 
 
-                    # in a late processing step, "workers" will take each
-                    # target, and compare each hash with each others to spot
-                    # for miRNA binding in close proximity.
-                    # The comparison problem will be quadratic.
+                # in a late processing step, "workers" will take each target,
+                # and compare each hash with each others to spot for miRNA
+                # binding in close proximity.
+                # The comparison problem will be quadratic.
 
-        in_file.close()
+    in_file.close()
 
-        logger.info("    Found %s RNA duplexes across %s target genes",
-            str(count_duplexes), str(cache.scard(targets)))
-    else:
-        logger.error("  %s is not a file. Exiting", in_file)
-        config.print_usage()
-        sys.exit(1)
+    logger.info(
+        "    Found %s RNA duplexes across %s target genes",
+        str(count_duplexes), str(store.scard(targets))
+    )
 
     logger.debug("  ### CACHE DUPLEXES ends ###")
 
