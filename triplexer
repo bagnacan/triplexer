@@ -97,12 +97,12 @@ parser_op.add_argument(
     )
 )
 parser_op.add_argument(
-    OPT_TRIPLEX_SHORT,
-    OPT_TRIPLEX_EXT,
+    OPT_ALLOWED_SHORT,
+    OPT_ALLOWED_EXT,
     action="store_true",
     help=str(
         "discard all cached entries that do not form any putative triplex (requires options " +
-        ", ".join( str(x) for x in OPT_TRIPLEX_REQUIRE_CLI) + ")"
+        ", ".join( str(x) for x in OPT_ALLOWED_REQUIRE_CLI) + ")"
     )
 )
 parser_op.add_argument(
@@ -159,6 +159,29 @@ def is_a_file(parser, f):
 
 
 #
+# check provided option satisfy dependencies
+#
+def provides_required_options(operation, required_options, options):
+    """
+    Checks whether the provided set of operation's options complies with the
+    operation's set of required options.
+    """
+    provided_options = [
+        x for x in required_options if options[x] is not None
+    ]
+
+    # ceck whether the mandatory options are provided
+    if set(provided_options) != set(required_options):
+        logger.error("Missing required options for operation \"%s\".",
+            operation)
+        return False
+
+    else:
+        return True
+
+
+
+#
 # main
 #
 if __name__ == "__main__":
@@ -191,37 +214,22 @@ if __name__ == "__main__":
 
     # operation cache
     if options[OPT_CACHE]:
-        opt_cache_provide = [
-            x for x in OPT_CACHE_REQUIRE if options[x] is not None
-        ]
 
-        # ceck whether the mandatory options are provided
-        if set(opt_cache_provide) != set(OPT_CACHE_REQUIRE):
-            logger.error(
-                "Missing required options for operation \"%s\".",
-                OPT_CACHE
-            )
+        if provides_required_options(OPT_CACHE, OPT_CACHE_REQUIRE, options):
+            logger.info("Operation \"%s\" launched", OPT_CACHE)
+            microrna_org.cache(store, options)
+        else:
             parser.print_help(file=sys.stderr)
             sys.exit(2)
 
-        logger.info("Operation \"%s\" launched", OPT_CACHE)
-        microrna_org.cache(store, options)
 
     # operation triplex
-    if options[OPT_TRIPLEX]:
-        opt_triplex_provide = [
-            x for x in OPT_TRIPLEX_REQUIRE if options[x] is not None
-        ]
+    if options[OPT_ALLOWED]:
 
-        # ceck whether the mandatory options are provided
-        if set(opt_triplex_provide) != set(OPT_TRIPLEX_REQUIRE):
-            logger.error(
-                "Missing required options for operation \"%s\".",
-                OPT_TRIPLEX
-            )
+        if provides_required_options(OPT_ALLOWED, OPT_ALLOWED_REQUIRE, options):
+            logger.info("Operation \"%s\" launched", OPT_ALLOWED)
+            triplex.filter(store, options)
+        else:
             parser.print_help(file=sys.stderr)
             sys.exit(2)
-        else:
-            logger.info("Operation \"%s\" launched", OPT_TRIPLEX)
-            triplex.filter(store, options)
 
