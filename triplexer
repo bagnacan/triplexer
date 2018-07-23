@@ -169,7 +169,6 @@ if __name__ == "__main__":
 
     # operation cache
     if options[OPT_CACHE]:
-    #if OPT_CACHE in args:
         opt_cache_provide = [
             x for x in OPT_CACHE_REQUIRE if options[x] is not None
         ]
@@ -185,7 +184,8 @@ if __name__ == "__main__":
         else:
             logger.info("Operation \"%s\" launched", OPT_CACHE)
             microrna_org.cache(options)
-    #elif OPT_TRIPLEX in args:
+
+    # operation triplex
     elif options[OPT_TRIPLEX]:
         opt_triplex_provide = [
             x for x in OPT_TRIPLEX_REQUIRE if options[x] is not None
