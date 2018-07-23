@@ -88,6 +88,15 @@ parser_op.add_argument(
     )
 )
 parser_op.add_argument(
+    OPT_TRIPLEX_SHORT,
+    OPT_TRIPLEX_EXT,
+    action="store_true",
+    help=str(
+        "discard all cached entries that do not form any putative triplex (requires options " +
+        ", ".join( str(x) for x in OPT_TRIPLEX_REQUIRE_CLI) + ")"
+    )
+)
+parser_op.add_argument(
     OPT_PREDICT_SHORT,
     OPT_PREDICT_EXT,
     action="store_true",
@@ -152,24 +161,44 @@ if __name__ == "__main__":
     # ==> print the help and exit
     if non_args or len(sys.argv) == 1:
         parser.print_help(file=sys.stderr)
+        sys.exit(0)
 
 
     options = dict(vars(args))
 
 
     # operation cache
-    if OPT_CACHE in args:
+    if options[OPT_CACHE]:
+    #if OPT_CACHE in args:
         opt_cache_provide = [
             x for x in OPT_CACHE_REQUIRE if options[x] is not None
         ]
-        print(opt_cache_provide)
 
         # ceck whether the mandatory options are provided
         if set(opt_cache_provide) != set(OPT_CACHE_REQUIRE):
-            logger.error("Missing required options.")
+            logger.error(
+                "Missing required options for operation \"%s\".",
+                OPT_CACHE
+            )
             parser.print_help(file=sys.stderr)
             sys.exit(2)
         else:
-            logger.info("Operation " + OPT_CACHE + " launched")
+            logger.info("Operation \"%s\" launched", OPT_CACHE)
             microrna_org.cache(options)
+    #elif OPT_TRIPLEX in args:
+    elif options[OPT_TRIPLEX]:
+        opt_triplex_provide = [
+            x for x in OPT_TRIPLEX_REQUIRE if options[x] is not None
+        ]
+        # ceck whether the mandatory options are provided
+        if set(opt_triplex_provide) != set(OPT_TRIPLEX_REQUIRE):
+            logger.error(
+                "Missing required options for operation \"%s\".",
+                OPT_TRIPLEX
+            )
+            parser.print_help(file=sys.stderr)
+            sys.exit(2)
+        else:
+            logger.info("Operation \"%s\" launched", OPT_TRIPLEX)
+            #microrna_org.cache(options)
 
