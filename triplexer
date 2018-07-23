@@ -10,7 +10,6 @@ import microrna_org
 import os
 import redis
 import sys
-import triplex
 from common import *
 
 
@@ -229,7 +228,7 @@ if __name__ == "__main__":
 
         if provides_required_options(OPT_ALLOWED, OPT_ALLOWED_REQUIRE, options):
             logger.info("Operation \"%s\" launched", OPT_ALLOWED)
-            triplex.filter(store, options)
+            microrna_org.allowed(store, options)
         else:
             parser.print_help(file=sys.stderr)
             sys.exit(2)
