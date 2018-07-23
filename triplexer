@@ -82,7 +82,7 @@ parser_to.add_argument(
     OPT_FILE_SHORT,
     OPT_FILE_EXT,
     metavar="FILE",
-    type=(lambda x: is_a_file(parser, x)),
+    type=(lambda x: is_file(parser, x)),
     help="set %(metavar)s as the target organism's source dataset file"
 )
 # operation parser
@@ -145,7 +145,7 @@ logging.getLogger("").addHandler(console)
 #
 # check provided file is a file, and return its path
 #
-def is_a_file(parser, f):
+def is_file(parser, f):
     """
     Checks whether the provided file is a file and return its path.
     """
@@ -153,6 +153,7 @@ def is_a_file(parser, f):
         logger.error("Provided file %s is not a file", f)
         parser.print_help(file=sys.stderr)
         sys.exit(2)
+
     else:
         return os.path.realpath(f)
 
