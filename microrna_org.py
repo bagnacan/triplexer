@@ -12,8 +12,6 @@ import sys
 from common import *
 
 
-SEPARATOR = ":"
-
 
 # microrna.org target predictions are organised in a file storing one duplex
 # per line. Each duplex is described in terms of the following fields
