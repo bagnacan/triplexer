@@ -82,7 +82,8 @@ def cache(store, options):
     namespace = str(
         options[OPT_NAMESPACE] + SEPARATOR +
         options[OPT_ORGANISM] + SEPARATOR +
-        options[OPT_GENOME])
+        options[OPT_GENOME]
+    )
 
     # retrieve all duplexes, organising them by target gene
     cache_duplexes(store, options[OPT_FILE], namespace)
@@ -94,8 +95,8 @@ def cache(store, options):
 #
 def cache_duplexes(store, in_file, namespace):
     """
-    Reads the supplied microrna.org target prediction file, and retrieves a
-    list of all stored duplexes.
+    Reads the supplied microrna.org target prediction file, and caches all
+    stored duplexes within it.
     """
 
     count_lines    = 0
@@ -131,12 +132,25 @@ def cache_duplexes(store, in_file, namespace):
                     count_lines)
 
                 target_hash = get_hash(line)
-                duplex = str(namespace +
-                    ":duplex:line" + str(count_lines))
-                target = str(namespace +
-                    ":target:" + target_hash[TRANSCRIPT_ID])
-                target_duplexes = str(namespace +
-                    ":target" + target_hash[TRANSCRIPT_ID] + ":duplexes")
+
+                duplex = str(
+                    namespace +
+                    ":duplex:line" +
+                    str(count_lines)
+                )
+
+                target = str(
+                    namespace +
+                    ":target:" +
+                    target_hash[TRANSCRIPT_ID]
+                )
+
+                target_duplexes = str(
+                    namespace +
+                    ":target" +
+                    target_hash[TRANSCRIPT_ID] +
+                    ":duplexes"
+                )
 
                 # cache
                 try:
@@ -293,48 +307,63 @@ def generate_allowed_comparisons(store, options, core):
         if target:
             statistics_targets_all += 1
 
-            logger.debug("    Worker %d: Generating allowed triplexes for target %s",
+            logger.debug(
+                "    Worker %d: Generating allowed triplexes for target %s",
                 core, target)
 
             # compute all possible duplex-pairs
 
             target_duplexes = store.smembers( str(target + ":duplexes"))
 
-            logger.debug("    Worker %d:   Target found in %d duplexes",
-                core, len(target_duplexes))
+            logger.debug(
+                "    Worker %d:   Target found in %d duplexes",
+                core, len(target_duplexes)
+            )
 
             duplex_comparisons_all = list(
-                itertools.combinations(target_duplexes, 2))
+                itertools.combinations(target_duplexes, 2)
+            )
 
             duplex_comparisons_allowed = []
 
-            logger.debug("    Worker %d:   Comparing each duplex against each other for allowed (binding range) triplexes...",
-                core)
+            logger.debug(
+                "    Worker %d:   Comparing each duplex against each other for allowed (binding range) triplexes...",
+                core
+            )
 
             for duplex_comparison in duplex_comparisons_all:
 
                 # get the miRNA-target binding start position
                 duplex1 = duplex_comparison[0]
                 duplex1_alignment_start = int(
-                    store.hget(duplex1, ALIGNMENT_GENE_START))
+                    store.hget(duplex1, ALIGNMENT_GENE_START)
+                )
 
-                logger.debug("    Worker %d:     Duplex %s aligns at %s",
-                    core, duplex1, duplex1_alignment_start)
+                logger.debug(
+                    "    Worker %d:     Duplex %s aligns at %s",
+                    core, duplex1, duplex1_alignment_start
+                )
 
                 # get the miRNA-target binding start position
                 duplex2 = duplex_comparison[1]
                 duplex2_alignment_start = int(
-                    store.hget(duplex2, ALIGNMENT_GENE_START))
+                    store.hget(duplex2, ALIGNMENT_GENE_START)
+                )
 
-                logger.debug("    Worker %d:     Duplex %s aligns at %s",
-                    core, duplex2, duplex2_alignment_start)
+                logger.debug(
+                    "    Worker %d:     Duplex %s aligns at %s",
+                    core, duplex2, duplex2_alignment_start
+                )
 
                 # compute the binding distance
                 binding = abs(
-                    duplex1_alignment_start - duplex2_alignment_start)
+                    duplex1_alignment_start - duplex2_alignment_start
+                )
 
-                logger.debug("    Worker %d:     Duplex binding range is %s",
-                    core, binding)
+                logger.debug(
+                    "    Worker %d:     Duplex binding range is %s",
+                    core, binding
+                )
 
                 # putative triplexes have their miRNAs binding a mutual target
                 # gene within 13-35 seed distance range (Saetrom et al. 2007).
@@ -346,14 +375,18 @@ def generate_allowed_comparisons(store, options, core):
                 # duplex-pair comparison
                 if (SEED_MAX_DISTANCE >= binding) and (binding >= SEED_MIN_DISTANCE):
 
-                    logger.debug("    Worker %d:       Duplex %s vs. %s --> range allowed (%d >= %d >= %d). Triplex kept",
-                        core, duplex1, duplex2, SEED_MAX_DISTANCE, binding, SEED_MIN_DISTANCE)
+                    logger.debug(
+                        "    Worker %d:       Duplex %s vs. %s --> range allowed (%d >= %d >= %d). Triplex kept",
+                        core, duplex1, duplex2, SEED_MAX_DISTANCE, binding, SEED_MIN_DISTANCE
+                    )
 
                     duplex_comparisons_allowed.append(duplex_comparison)
 
                 else:
-                    logger.debug("    Worker %d:       Duplex %s vs. %s --> range disallowed. Triplex ignored",
-                        core, duplex1, duplex2)
+                    logger.debug(
+                        "    Worker %d:       Duplex %s vs. %s --> range disallowed. Triplex ignored",
+                        core, duplex1, duplex2
+                    )
 
             # cache all allowed duplex-pair comparisons
             if duplex_comparisons_allowed:
@@ -362,24 +395,31 @@ def generate_allowed_comparisons(store, options, core):
 
                 # cache the popped target in a set of allowed seed
                 # binding range targets
-                store.sadd(str(namespace + ":targets:binding"),
-                    target)
+                store.sadd(str(namespace + ":targets:binding"), target)
 
-                logger.debug("    Worker %d:   Cached target in allowed seed binding range targets",
-                    core)
+                logger.debug(
+                    "    Worker %d:   Cached target in allowed seed binding range targets",
+                    core
+                )
 
                 # cache the allowed duplex comparisons
-                store.sadd(str(target + ":duplexes:binding"),
-                    duplex_comparisons_allowed)
+                store.sadd(
+                    str(target + ":duplexes:binding"),
+                    duplex_comparisons_allowed
+                )
 
-                logger.debug("    Worker %d:   Target %s forms %d allowed binding range triplexes among the %d possible duplex comparisons",
+                logger.debug(
+                    "    Worker %d:   Target %s forms %d allowed binding range triplexes among the %d possible duplex comparisons",
                     core, target, len(duplex_comparisons_allowed),
-                    len(duplex_comparisons_all))
+                    len(duplex_comparisons_all)
+                )
 
         else:
             break
 
-    logger.info("    Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
+    logger.info(
+        "    Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
         core, statistics_targets_all, statistics_targets_binding,
-        statistics_duplexes_binding)
+        statistics_duplexes_binding
+    )
 
