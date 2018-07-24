@@ -57,6 +57,8 @@ parser.add_argument(
     default="0",
     help="set %(metavar)s as the location database for all intermediate results (default: %(default)s)"
 )
+
+
 # organism data parser
 parser_to = parser.add_argument_group("target organism data")
 parser_to.add_argument(
@@ -84,6 +86,8 @@ parser_to.add_argument(
     type=(lambda x: is_file(parser, x)),
     help="set %(metavar)s as the target organism's source dataset file"
 )
+
+
 # operation parser
 parser_op = parser.add_argument_group("operations")
 parser_op.add_argument(
@@ -223,7 +227,7 @@ if __name__ == "__main__":
             sys.exit(2)
 
 
-    # operation triplex
+    # operation allowed
     if options[OPT_ALLOWED]:
 
         if provides_required_options(OPT_ALLOWED, OPT_ALLOWED_REQUIRE, options):
