@@ -68,6 +68,23 @@ logger = logging.getLogger("microrna.org")
 
 
 #
+# return the caching namespace
+#
+def get_caching_namespace(options):
+    """
+    Returns the caching namespace.
+    """
+
+    namespace = str(
+        options[OPT_NAMESPACE] + SEPARATOR +
+        options[OPT_ORGANISM] + SEPARATOR +
+        options[OPT_GENOME]
+    )
+    return namespace
+
+
+
+#
 # cache the putative triplexes
 #
 def cache(store, options):
@@ -79,11 +96,7 @@ def cache(store, options):
     logger.info("Finding putative triplexes from microrna.org data")
 
     # caching namespace
-    namespace = str(
-        options[OPT_NAMESPACE] + SEPARATOR +
-        options[OPT_ORGANISM] + SEPARATOR +
-        options[OPT_GENOME]
-    )
+    namespace = get_caching_namespace(options)
 
     # retrieve all duplexes, organising them by target gene
     cache_duplexes(store, options[OPT_FILE], namespace)
@@ -147,7 +160,7 @@ def cache_duplexes(store, in_file, namespace):
 
                 target_duplexes = str(
                     namespace +
-                    ":target" +
+                    ":target:" +
                     target_hash[TRANSCRIPT_ID] +
                     ":duplexes"
                 )
@@ -282,7 +295,8 @@ def generate_allowed_comparisons(store, options, core):
     constraint are then cached for later statistical validation.
     """
 
-    namespace = options[OPT_NAMESPACE]
+    # caching namespace
+    namespace = get_caching_namespace(options)
 
     # per-worker summary statistics
     statistics_targets_all      = 0
@@ -298,13 +312,15 @@ def generate_allowed_comparisons(store, options, core):
         # positions), test whether the binding distance is within the binding
         # range outlined by Saetrom et al. (Saetrom et al. 2007)
 
-        target = store.spop( str(namespace + ":targets") )
+        target = store.spop( (namespace + str(":targets")) )
 
         # (popped targets will be cached in another set to allow further
         # operations, or ignored in case they do not form any allowed RNA
         # triplex)
 
         if target:
+            target = target.decode()
+
             statistics_targets_all += 1
 
             logger.debug(
@@ -313,7 +329,7 @@ def generate_allowed_comparisons(store, options, core):
 
             # compute all possible duplex-pairs
 
-            target_duplexes = store.smembers( str(target + ":duplexes"))
+            target_duplexes = store.smembers( (target + ":duplexes"))
 
             logger.debug(
                 "    Worker %d:   Target found in %d duplexes",
@@ -395,7 +411,7 @@ def generate_allowed_comparisons(store, options, core):
 
                 # cache the popped target in a set of allowed seed
                 # binding range targets
-                store.sadd(str(namespace + ":targets:binding"), target)
+                store.sadd((namespace + ":targets:binding"), target)
 
                 logger.debug(
                     "    Worker %d:   Cached target in allowed seed binding range targets",
@@ -404,7 +420,7 @@ def generate_allowed_comparisons(store, options, core):
 
                 # cache the allowed duplex comparisons
                 store.sadd(
-                    str(target + ":duplexes:binding"),
+                    (target + ":duplexes:binding"),
                     duplex_comparisons_allowed
                 )
 
