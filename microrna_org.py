@@ -101,7 +101,7 @@ def cache(store, options):
     # namespace
     namespace = get_caching_namespace(options)
 
-    logger.info("  Reading putative triplexes from microrna.org file %s", in_file)
+    logger.info("  Reading putative triplexes from microrna.org file %s ...", in_file)
 
 
     # each line represents a duplex, holding a target id, a miRNA id, and all
@@ -235,7 +235,8 @@ def get_hash(line):
 # has to be compared for seed binding proximity (Saetrom et al. 2007).
 # Create a list of comparisons that have to be performed against each scanned
 # duplex (for each scanned target)
-# TODO: move out onceother input modules are implemented
+# TODO: this function must be source-agnostic, i.e. comparisons should be made
+# regardless the data is from microrna.org, TargetScan, etc.
 def allowed(store, options):
     """
     Retrieves each target and set of associated duplexes, and builds a list
@@ -243,8 +244,6 @@ def allowed(store, options):
     distance resides within the allowed nt. range (Saetrom et al. 2007).
     This process is carried out on multiple targets in parallel.
     """
-
-    logger.debug("  ### CACHE ALLOWED DUPLEXES starts ###")
 
     logger.info("  Finding allowed duplex-pair comparisons among each target's duplex ...")
 
@@ -258,14 +257,11 @@ def allowed(store, options):
     [p.join() for p in procs]
 
 
-    logger.debug("  ### CACHE ALLOWED DUPLEXES ends ###")
-    sys.exit(0)
-
-
 
 #
 # generate the allowed duplex-pair comparison list
-# TODO: move out onceother input modules are implemented
+# TODO: this function must be source-agnostic, i.e. comparisons should be made
+# regardless the data is from microrna.org, TargetScan, etc.
 def generate_allowed_comparisons(store, options, core):
     """
     Takes each target gene's cached duplex, and compares them all to spot
@@ -414,7 +410,7 @@ def generate_allowed_comparisons(store, options, core):
             break
 
     logger.info(
-        "    Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
+        "  Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
         core, statistics_targets_all, statistics_targets_binding,
         statistics_duplexes_binding
     )

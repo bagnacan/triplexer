@@ -232,8 +232,9 @@ if __name__ == "__main__":
     if options[OPT_ALLOWED]:
 
         if provides_required_options(OPT_ALLOWED, OPT_ALLOWED_REQUIRE, options):
-            logger.info("Operation \"%s\" launched", OPT_ALLOWED)
+            logger.info("Operation \"%s\" started", OPT_ALLOWED)
             microrna_org.allowed(store, options)
+            logger.info("Operation \"%s\" completed", OPT_ALLOWED)
 
         else:
             parser.print_help(file=sys.stderr)
