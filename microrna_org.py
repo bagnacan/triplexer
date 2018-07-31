@@ -84,28 +84,9 @@ def get_caching_namespace(options):
 
 
 #
-# cache the putative triplexes
+# read the microrna.org target prediction file and cache all putative triplexes
 #
 def cache(store, options):
-    """
-    Caches the putative gene targets and miRNA pairs that comply to the
-    formation constraints of an RNA triplex.
-    """
-
-    logger.info("Finding putative triplexes from microrna.org data")
-
-    # caching namespace
-    namespace = get_caching_namespace(options)
-
-    # retrieve all duplexes, organising them by target gene
-    cache_duplexes(store, options[OPT_FILE], namespace)
-
-
-
-#
-# read the microrna.org target prediction file
-#
-def cache_duplexes(store, in_file, namespace):
     """
     Reads the supplied microrna.org target prediction file, and caches all
     stored duplexes within it.
@@ -114,9 +95,14 @@ def cache_duplexes(store, in_file, namespace):
     count_lines    = 0
     count_duplexes = 0
 
-    logger.debug("  ### CACHE DUPLEXES starts ###")
+    # in file
+    in_file = options[OPT_FILE]
 
-    logger.info("  Reading duplexes from %s ...", in_file)
+    # namespace
+    namespace = get_caching_namespace(options)
+
+    logger.info("  Reading putative triplexes from microrna.org file %s", in_file)
+
 
     # each line represents a duplex, holding a target id, a miRNA id, and all
     # attributes related to the complex.
@@ -199,11 +185,9 @@ def cache_duplexes(store, in_file, namespace):
     in_file.close()
 
     logger.info(
-        "    Found %s RNA duplexes across %s target genes",
+        "  Found %s RNA duplexes across %s target genes",
         str(count_duplexes), str(store.scard(targets))
     )
-
-    logger.debug("  ### CACHE DUPLEXES ends ###")
 
 
 
