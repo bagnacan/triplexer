@@ -144,6 +144,13 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
+# operation launcher
+launch = {
+    OPT_CACHE: microrna_org.cache,
+    OPT_ALLOWED: microrna_org.allowed
+}
+
+
 
 #
 # check provided file is a file, and return its path
@@ -165,11 +172,13 @@ def is_file(parser, f):
 #
 # check provided option satisfy dependencies
 #
-def provides_required_options(operation, required_options, options):
+def provides_required_options(operation, options):
     """
     Checks whether the provided set of operation's options complies with the
     operation's set of required options.
     """
+    required_options = OPTS_DEPENDENCIES[operation]
+
     provided_options = [
         x for x in required_options if options[x] is not None
     ]
@@ -183,6 +192,27 @@ def provides_required_options(operation, required_options, options):
     else:
         return True
 
+
+
+#
+# run the operation
+#
+def run(operation, options):
+    """
+    Checks if an operation's mandatory options are provided, and runs it.
+    """
+
+    # check whether the options contain the desired operation
+    if options[operation]:
+
+        # check the operation's required options, and launch it
+        if provides_required_options(operation, options):
+            logger.info("Operation \"%s\" started", operation)
+            launch[operation](store, options)
+            logger.info("Operation \"%s\" completed", operation)
+        else:
+            parser.print_help(file=sys.stderr)
+            sys.exit(2)
 
 
 #
@@ -216,25 +246,16 @@ if __name__ == "__main__":
         sys.exit(2)
 
 
-    # operation cache
-    if options[OPT_CACHE]:
-
-        if provides_required_options(OPT_CACHE, OPT_CACHE_REQUIRE, options):
-            logger.info("Operation \"%s\" launched", OPT_CACHE)
-            microrna_org.cache(store, options)
-        else:
-            parser.print_help(file=sys.stderr)
-            sys.exit(2)
+    # operation precedence:
+    operations = [
+        OPT_CACHE,
+        OPT_ALLOWED,
+        OPT_PREDICT,
+        OPT_SIMULATE
+    ]
 
 
-    # operation allowed
-    if options[OPT_ALLOWED]:
-
-        if provides_required_options(OPT_ALLOWED, OPT_ALLOWED_REQUIRE, options):
-            logger.info("Operation \"%s\" launched", OPT_ALLOWED)
-            microrna_org.allowed(store, options)
-
-        else:
-            parser.print_help(file=sys.stderr)
-            sys.exit(2)
+    # check each operation's required parameters, and launch it
+    for operation in operations:
+        run(operation, options)
 

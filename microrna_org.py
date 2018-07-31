@@ -84,28 +84,9 @@ def get_caching_namespace(options):
 
 
 #
-# cache the putative triplexes
+# read the microrna.org target prediction file and cache all putative triplexes
 #
 def cache(store, options):
-    """
-    Caches the putative gene targets and miRNA pairs that comply to the
-    formation constraints of an RNA triplex.
-    """
-
-    logger.info("Finding putative triplexes from microrna.org data")
-
-    # caching namespace
-    namespace = get_caching_namespace(options)
-
-    # retrieve all duplexes, organising them by target gene
-    cache_duplexes(store, options[OPT_FILE], namespace)
-
-
-
-#
-# read the microrna.org target prediction file
-#
-def cache_duplexes(store, in_file, namespace):
     """
     Reads the supplied microrna.org target prediction file, and caches all
     stored duplexes within it.
@@ -114,9 +95,14 @@ def cache_duplexes(store, in_file, namespace):
     count_lines    = 0
     count_duplexes = 0
 
-    logger.debug("  ### CACHE DUPLEXES starts ###")
+    # in file
+    in_file = options[OPT_FILE]
 
-    logger.info("  Reading duplexes from %s ...", in_file)
+    # namespace
+    namespace = get_caching_namespace(options)
+
+    logger.info("  Reading putative triplexes from microrna.org file %s ...", in_file)
+
 
     # each line represents a duplex, holding a target id, a miRNA id, and all
     # attributes related to the complex.
@@ -199,11 +185,9 @@ def cache_duplexes(store, in_file, namespace):
     in_file.close()
 
     logger.info(
-        "    Found %s RNA duplexes across %s target genes",
+        "  Found %s RNA duplexes across %s target genes",
         str(count_duplexes), str(store.scard(targets))
     )
-
-    logger.debug("  ### CACHE DUPLEXES ends ###")
 
 
 
@@ -251,7 +235,8 @@ def get_hash(line):
 # has to be compared for seed binding proximity (Saetrom et al. 2007).
 # Create a list of comparisons that have to be performed against each scanned
 # duplex (for each scanned target)
-# TODO: move out onceother input modules are implemented
+# TODO: this function must be source-agnostic, i.e. comparisons should be made
+# regardless the data is from microrna.org, TargetScan, etc.
 def allowed(store, options):
     """
     Retrieves each target and set of associated duplexes, and builds a list
@@ -259,8 +244,6 @@ def allowed(store, options):
     distance resides within the allowed nt. range (Saetrom et al. 2007).
     This process is carried out on multiple targets in parallel.
     """
-
-    logger.debug("  ### CACHE ALLOWED DUPLEXES starts ###")
 
     logger.info("  Finding allowed duplex-pair comparisons among each target's duplex ...")
 
@@ -274,14 +257,11 @@ def allowed(store, options):
     [p.join() for p in procs]
 
 
-    logger.debug("  ### CACHE ALLOWED DUPLEXES ends ###")
-    sys.exit(0)
-
-
 
 #
 # generate the allowed duplex-pair comparison list
-# TODO: move out onceother input modules are implemented
+# TODO: this function must be source-agnostic, i.e. comparisons should be made
+# regardless the data is from microrna.org, TargetScan, etc.
 def generate_allowed_comparisons(store, options, core):
     """
     Takes each target gene's cached duplex, and compares them all to spot
@@ -430,7 +410,7 @@ def generate_allowed_comparisons(store, options, core):
             break
 
     logger.info(
-        "    Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
+        "  Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
         core, statistics_targets_all, statistics_targets_binding,
         statistics_duplexes_binding
     )

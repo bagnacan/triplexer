@@ -62,6 +62,13 @@ OPT_SIMULATE_SHORT = str("-" + OPT_SIMULATE[:1])
 OPT_SIMULATE_EXT   = str("--" + OPT_SIMULATE)
 
 
+# option dependencies
+OPTS_DEPENDENCIES = {
+    OPT_CACHE: OPT_CACHE_REQUIRE,
+    OPT_ALLOWED: OPT_ALLOWED_REQUIRE
+}
+
+
 # Saetrom et al. 2007 (doi:10.1093/nar/gkm133) defined the following distance
 # binding range constraint for experimentally validated RNA triplexes
 SEED_MIN_DISTANCE = 13
