@@ -5,11 +5,10 @@
 
 import itertools
 import logging
-import multiprocessing
-import os
 import redis
 import sys
 from common import *
+from multiprocessing import Process
 
 
 
@@ -268,15 +267,12 @@ def allowed(store, options):
 
     # generate all comparison jobs in parallel, assigning the same job to as
     # many processes as number of given cores
-    jobs = []
-    for core in range(int(options[OPT_CORES])):
-        p = multiprocessing.Process(
-            target=generate_allowed_comparisons,
-            args=(store, options, core)
-        )
-        jobs.append(p)
-        p.start()
-        p.join()
+    procs = [
+        Process(target=generate_allowed_comparisons, args=(store, options, x)) for x in range(int(options[OPT_CORES]))
+    ]
+    [p.start() for p in procs]
+    [p.join() for p in procs]
+
 
     logger.debug("  ### CACHE ALLOWED DUPLEXES ends ###")
     sys.exit(0)
