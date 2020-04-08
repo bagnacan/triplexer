@@ -223,9 +223,16 @@ if __name__ == "__main__":
     # parse the command line invocation:
     args, non_args = parser.parse_known_args()
 
-    # unrecognised arguments or no options
+    # unrecognised arguments
     # ==> print the help and exit
-    if non_args or len(sys.argv) == 1:
+    if non_args:
+        logger.error("Wrong command line invocation. Exiting")
+        parser.print_help(file=sys.stderr)
+        sys.exit(2)
+
+    # no options arguments provided
+    # ==> print the help and exit
+    if len(sys.argv) == 1:
         parser.print_help(file=sys.stderr)
         sys.exit(0)
 
