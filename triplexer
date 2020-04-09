@@ -172,7 +172,7 @@ def is_file(parser, f):
 #
 # check provided option satisfy dependencies
 #
-def provides_required_options(operation, options):
+def operation_provides_required_options(operation, options):
     """
     Checks whether the provided set of operation's options complies with the
     operation's set of required options.
@@ -199,20 +199,23 @@ def provides_required_options(operation, options):
 #
 def run(operation, options):
     """
-    Checks if an operation's mandatory options are provided, and runs it.
+    Runs an operation.
     """
 
-    # check whether the options contain the desired operation
-    if options[operation]:
+    logger.info("Operation \"%s\" started", operation)
+    launch[operation](store, options)
+    logger.info("Operation \"%s\" completed", operation)
 
-        # check the operation's required options, and launch it
-        if provides_required_options(operation, options):
-            logger.info("Operation \"%s\" started", operation)
-            launch[operation](store, options)
-            logger.info("Operation \"%s\" completed", operation)
-        else:
-            parser.print_help(file=sys.stderr)
-            sys.exit(2)
+
+
+#
+# check if an operation is followed by its required options
+#
+def check_operation_options(operation, options):
+    """
+    Checks if an operation's mandatory options are provided.
+    """
+
 
 
 #
@@ -223,6 +226,12 @@ if __name__ == "__main__":
     # parse the command line invocation:
     args, non_args = parser.parse_known_args()
 
+    # no options arguments provided
+    # ==> print the help and exit
+    if len(sys.argv) == 1:
+        parser.print_help(file=sys.stderr)
+        sys.exit(0)
+
     # unrecognised arguments
     # ==> print the help and exit
     if non_args:
@@ -230,17 +239,30 @@ if __name__ == "__main__":
         parser.print_help(file=sys.stderr)
         sys.exit(2)
 
-    # no options arguments provided
-    # ==> print the help and exit
-    if len(sys.argv) == 1:
-        parser.print_help(file=sys.stderr)
-        sys.exit(0)
-
 
     options = dict(vars(args))
 
 
-    # check whether the underlying redis cache is reachable
+    # operation precedence:
+    operations = [
+        OPT_CACHE,
+        OPT_ALLOWED,
+        OPT_PREDICT,
+        OPT_SIMULATE
+    ]
+
+
+    # provided operation does not indicate mandatory options
+    # ==> print help and exit
+    for operation in operations:
+
+        if options[operation] and (not operation_provides_required_options(operation, options)):
+            logger.error("Operation \"%s\" is missing mandatory options. Exiting", operation)
+            parser.print_help(file=sys.stderr)
+            sys.exit(2)
+
+    # underlying redis cache not reachable
+    # ==> exit
     logger.info("Checking redis cache at %s", options[OPT_LOCATION])
     store = redis.StrictRedis(
         host=options[OPT_LOCATION].split(SEPARATOR)[0],
@@ -253,16 +275,8 @@ if __name__ == "__main__":
         sys.exit(2)
 
 
-    # operation precedence:
-    operations = [
-        OPT_CACHE,
-        OPT_ALLOWED,
-        OPT_PREDICT,
-        OPT_SIMULATE
-    ]
-
-
-    # check each operation's required parameters, and launch it
+    # launch all the provided operations
     for operation in operations:
-        run(operation, options)
+        if options[operation]:
+            run(operation, options)
 
