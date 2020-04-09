@@ -99,21 +99,21 @@ parser_to.add_argument(
 # operation parser
 parser_op = parser.add_argument_group("operations")
 parser_op.add_argument(
-    OPT_CACHE_SHORT,
-    OPT_CACHE_EXT,
+    OPT_STORE_SHORT,
+    OPT_STORE_EXT,
     action="store_true",
     help=str(
         "cache the provided source dataset (requires options " +
-        ", ".join( str(x) for x in OPT_CACHE_REQUIRE_CLI) + ")"
+        ", ".join( str(x) for x in OPT_STORE_REQUIRE_CLI) + ")"
     )
 )
 parser_op.add_argument(
-    OPT_ALLOWED_SHORT,
-    OPT_ALLOWED_EXT,
+    OPT_FILTER_SHORT,
+    OPT_FILTER_EXT,
     action="store_true",
     help=str(
         "discard all cached entries that do not form any putative triplex (requires options " +
-        ", ".join( str(x) for x in OPT_ALLOWED_REQUIRE_CLI) + ")"
+        ", ".join( str(x) for x in OPT_FILTER_REQUIRE_CLI) + ")"
     )
 )
 parser_op.add_argument(
@@ -123,8 +123,8 @@ parser_op.add_argument(
     help="predict putative triplexes"
 )
 parser_op.add_argument(
-    OPT_SIMULATE_SHORT,
-    OPT_SIMULATE_EXT,
+    OPT_TEST_SHORT,
+    OPT_TEST_EXT,
     action="store_true",
     help="test the stability of predicted putative triplexes"
 )
@@ -154,8 +154,8 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_CACHE: microrna_org.cache,
-    OPT_ALLOWED: microrna_org.allowed
+    OPT_STORE: microrna_org.cache,
+    OPT_FILTER: microrna_org.allowed
 }
 
 
@@ -253,10 +253,10 @@ if __name__ == "__main__":
 
     # operation precedence:
     operations = [
-        OPT_CACHE,
-        OPT_ALLOWED,
+        OPT_STORE,
+        OPT_FILTER,
         OPT_PREDICT,
-        OPT_SIMULATE
+        OPT_TEST
     ]
 
 
