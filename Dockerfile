@@ -167,10 +167,12 @@ RUN set -ex; \
 RUN pip install redis
 
 # triplexer
-COPY common.py .
-COPY conf.yaml .
-COPY microrna_org.py .
-COPY triplexer .
+COPY common.py /opt
+COPY conf.yaml /opt
+COPY microrna_org.py /opt
+COPY triplexer /opt
+CMD mkdir /data
 
 USER user
+WORKDIR /opt
 CMD ["bash"]
