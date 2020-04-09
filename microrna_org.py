@@ -96,7 +96,7 @@ def cache(store, options):
     count_duplexes = 0
 
     # in file
-    in_file = options[OPT_FILE]
+    in_file = options[OPT_INPUT]
 
     # namespace
     namespace = get_caching_namespace(options)

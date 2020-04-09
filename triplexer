@@ -19,7 +19,8 @@ MODULE = os.path.basename(sys.argv[0])
 # parser
 parser = argparse.ArgumentParser(
     prog=MODULE,
-    description="Predict and simulate putative RNA triplexes."
+    description="Predict and simulate putative RNA triplexes.",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument(
     "-v",
@@ -29,33 +30,26 @@ parser.add_argument(
     help="print the version and exit"
 )
 parser.add_argument(
-    "-i",
-    "--init",
+    "-c",
+    "--conf",
     metavar="CONF",
     default="conf.yaml",
     type=argparse.FileType("r"),
-    help="set %(metavar)s as the init configuration file (default: %(default)s)"
+    help="set %(metavar)s as configuration file"
 )
 parser.add_argument(
     OPT_CORES_SHORT,
     OPT_CORES_EXT,
     metavar="CORES",
     default="2",
-    help="set %(metavar)s as the number of parallel execution cores (default: %(default)s)"
+    help="set %(metavar)s as number of parallel processes"
 )
 parser.add_argument(
-    OPT_LOCATION_SHORT,
-    OPT_LOCATION_EXT,
-    metavar="STORE",
-    default="127.0.0.1:6379",
-    help="set %(metavar)s as the location for all intermediate results (default: %(default)s)"
-)
-parser.add_argument(
-    OPT_LOCATION_DB_SHORT,
-    OPT_LOCATION_DB_EXT,
+    OPT_DB_SHORT,
+    OPT_DB_EXT,
     metavar="DB",
-    default="0",
-    help="set %(metavar)s as the location database for all intermediate results (default: %(default)s)"
+    default="127.0.0.1:6379",
+    help="set %(metavar)s as intermediate results database"
 )
 
 
@@ -65,60 +59,68 @@ parser_to.add_argument(
     OPT_ORGANISM_SHORT,
     OPT_ORGANISM_EXT,
     metavar="ORG",
-    help="set %(metavar)s as the target organism"
+    default=argparse.SUPPRESS,
+    help="set %(metavar)s as model organism"
 )
 parser_to.add_argument(
     OPT_NAMESPACE_SHORT,
     OPT_NAMESPACE_EXT,
     metavar="NS",
-    help="set %(metavar)s as the target organism's namespace"
+    default=argparse.SUPPRESS,
+    help="set %(metavar)s as model organism namespace"
 )
 parser_to.add_argument(
     OPT_GENOME_SHORT,
     OPT_GENOME_EXT,
     metavar="GEN",
-    help="set %(metavar)s as the target organism's genome release"
+    default=argparse.SUPPRESS,
+    help="set %(metavar)s as model organism genome release"
 )
 parser_to.add_argument(
-    OPT_FILE_SHORT,
-    OPT_FILE_EXT,
-    metavar="FILE",
+    OPT_INPUT_SHORT,
+    OPT_INPUT_EXT,
+    metavar="INPUT",
     type=(lambda x: is_file(parser, x)),
-    help="set %(metavar)s as the target organism's source dataset file"
+    default=argparse.SUPPRESS,
+    help="set %(metavar)s as model organism input dataset"
 )
 
 
 # operation parser
 parser_op = parser.add_argument_group("operations")
 parser_op.add_argument(
-    OPT_CACHE_SHORT,
-    OPT_CACHE_EXT,
+    OPT_STORE_SHORT,
+    OPT_STORE_EXT,
     action="store_true",
+    default=argparse.SUPPRESS,
     help=str(
-        "cache the provided source dataset (requires options " +
-        ", ".join( str(x) for x in OPT_CACHE_REQUIRE_CLI) + ")"
+        "store the provided dataset (requires: " +
+        ", ".join( str(x) for x in OPT_STORE_REQUIRE_CLI) + ")"
     )
 )
 parser_op.add_argument(
-    OPT_ALLOWED_SHORT,
-    OPT_ALLOWED_EXT,
+    OPT_FILTER_SHORT,
+    OPT_FILTER_EXT,
     action="store_true",
+    default=argparse.SUPPRESS,
     help=str(
-        "discard all cached entries that do not form any putative triplex (requires options " +
-        ", ".join( str(x) for x in OPT_ALLOWED_REQUIRE_CLI) + ")"
+        "filter entries not forming putative triplexes (requires: " +
+        ", ".join( str(x) for x in OPT_FILTER_REQUIRE_CLI) + ")"
     )
 )
 parser_op.add_argument(
     OPT_PREDICT_SHORT,
     OPT_PREDICT_EXT,
     action="store_true",
+    default=argparse.SUPPRESS,
     help="predict putative triplexes"
 )
 parser_op.add_argument(
-    OPT_SIMULATE_SHORT,
-    OPT_SIMULATE_EXT,
+    OPT_TEST_SHORT,
+    OPT_TEST_EXT,
     action="store_true",
-    help="simulate the stability of predicted putative triplexes"
+    default=argparse.SUPPRESS,
+    help="test stability of predicted triplexes"
 )
 
 
@@ -146,8 +148,8 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_CACHE: microrna_org.cache,
-    OPT_ALLOWED: microrna_org.allowed
+    OPT_STORE: microrna_org.cache,
+    OPT_FILTER: microrna_org.allowed
 }
 
 
@@ -172,7 +174,7 @@ def is_file(parser, f):
 #
 # check provided option satisfy dependencies
 #
-def provides_required_options(operation, options):
+def operation_provides_required_options(operation, options):
     """
     Checks whether the provided set of operation's options complies with the
     operation's set of required options.
@@ -199,20 +201,23 @@ def provides_required_options(operation, options):
 #
 def run(operation, options):
     """
-    Checks if an operation's mandatory options are provided, and runs it.
+    Runs an operation.
     """
 
-    # check whether the options contain the desired operation
-    if options[operation]:
+    logger.info("Operation \"%s\" started", operation)
+    launch[operation](store, options)
+    logger.info("Operation \"%s\" completed", operation)
 
-        # check the operation's required options, and launch it
-        if provides_required_options(operation, options):
-            logger.info("Operation \"%s\" started", operation)
-            launch[operation](store, options)
-            logger.info("Operation \"%s\" completed", operation)
-        else:
-            parser.print_help(file=sys.stderr)
-            sys.exit(2)
+
+
+#
+# check if an operation is followed by its required options
+#
+def check_operation_options(operation, options):
+    """
+    Checks if an operation's mandatory options are provided.
+    """
+
 
 
 #
@@ -223,22 +228,48 @@ if __name__ == "__main__":
     # parse the command line invocation:
     args, non_args = parser.parse_known_args()
 
-    # unrecognised arguments or no options
+    # no options arguments provided
     # ==> print the help and exit
-    if non_args or len(sys.argv) == 1:
+    if len(sys.argv) == 1:
         parser.print_help(file=sys.stderr)
         sys.exit(0)
+
+    # unrecognised arguments
+    # ==> print the help and exit
+    if non_args:
+        logger.error("Wrong command line invocation. Exiting")
+        parser.print_help(file=sys.stderr)
+        sys.exit(2)
 
 
     options = dict(vars(args))
 
 
-    # check whether the underlying redis cache is reachable
-    logger.info("Checking redis cache at %s", options[OPT_LOCATION])
+    # operation precedence:
+    operations = [
+        OPT_STORE,
+        OPT_FILTER,
+        OPT_PREDICT,
+        OPT_TEST
+    ]
+
+
+    # provided operation does not indicate mandatory options
+    # ==> print help and exit
+    for operation in operations:
+
+        if options[operation] and (not operation_provides_required_options(operation, options)):
+            logger.error("Operation \"%s\" is missing mandatory options. Exiting", operation)
+            parser.print_help(file=sys.stderr)
+            sys.exit(2)
+
+    # underlying redis cache not reachable
+    # ==> exit
+    logger.info("Checking redis cache at %s", options[OPT_DB])
     store = redis.StrictRedis(
-        host=options[OPT_LOCATION].split(SEPARATOR)[0],
-        port=options[OPT_LOCATION].split(SEPARATOR)[1],
-        db=options[OPT_LOCATION_DB])
+        host=options[OPT_DB].split(SEPARATOR)[0],
+        port=options[OPT_DB].split(SEPARATOR)[1],
+        db=0)
     try:
         store.ping()
     except redis.RedisError:
@@ -246,16 +277,8 @@ if __name__ == "__main__":
         sys.exit(2)
 
 
-    # operation precedence:
-    operations = [
-        OPT_CACHE,
-        OPT_ALLOWED,
-        OPT_PREDICT,
-        OPT_SIMULATE
-    ]
-
-
-    # check each operation's required parameters, and launch it
+    # launch all the provided operations
     for operation in operations:
-        run(operation, options)
+        if options[operation]:
+            run(operation, options)
 

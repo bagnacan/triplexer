@@ -49,30 +49,23 @@ $ ./triplexer
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         print the version and exit
-  -i CONF, --init CONF  set CONF as the init configuration file (default:
-                        conf.yaml)
+  -c CONF, --conf CONF  set CONF as configuration file (default: conf.yaml)
   -x CORES, --exe CORES
-                        set CORES as the number of parallel execution cores
-                        (default: 2)
-  -l STORE, --location STORE
-                        set STORE as the location for all intermediate results
-                        (default: 127.0.0.1:6379)
-  -d DB, --db DB        set DB as the location database for all intermediate
-                        results (default: 0)
+                        set CORES as number of parallel processes (default: 2)
+  -d DB, --db DB        set DB as intermediate results database (default: 127.0.0.1:6379)
 
 target organism data:
-  -o ORG, --org ORG     set ORG as the target organism
-  -n NS, --ns NS        set NS as the target organism's namespace
-  -g GEN, --genome GEN  set GEN as the target organism's genome release
-  -f FILE, --file FILE  set FILE as the target organism's source dataset file
+  -o ORG, --org ORG     set ORG as model organism
+  -n NS, --ns NS        set NS as model organism namespace
+  -g GEN, --genome GEN  set GEN as model organism genome release
+  -i INPUT, --input INPUT
+                        set INPUT as model organism input dataset
 
 operations:
-  -c, --cache           cache the provided source dataset (requires options
-                        -o, -n, -g, -f)
-  -a, --allowed         discard all cached entries that do not form any
-                        putative triplex (requires options -o, -n, -g)
+  -s, --store           store the provided dataset (requires: -o, -n, -g, -i)
+  -f, --filter          filter entries not forming putative triplexes (requires: -o, -n, -g)
   -p, --predict         predict putative triplexes
-  -s, --simulate        simulate the stability of predicted putative triplexes
+  -t, --test            test stability of predicted triplexes
 ```
 
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>

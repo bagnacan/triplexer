@@ -13,43 +13,41 @@ OPT_NAMESPACE_EXT   = str("--" + OPT_NAMESPACE)
 OPT_GENOME       = "genome"
 OPT_GENOME_SHORT = str("-" + OPT_GENOME[:1])
 OPT_GENOME_EXT   = str("--" + OPT_GENOME)
-OPT_FILE       = "file"
-OPT_FILE_SHORT = str("-" + OPT_FILE[:1])
-OPT_FILE_EXT   = str("--" + OPT_FILE)
+OPT_INPUT       = "input"
+OPT_INPUT_SHORT = str("-" + OPT_INPUT[:1])
+OPT_INPUT_EXT   = str("--" + OPT_INPUT)
 OPT_CORES       = "exe"
 OPT_CORES_SHORT = str("-" + OPT_CORES[1:2])
 OPT_CORES_EXT   = str("--" + OPT_CORES[:3])
-OPT_LOCATION       = "location"
-OPT_LOCATION_SHORT = str("-" + OPT_LOCATION[:1])
-OPT_LOCATION_EXT   = str("--" + OPT_LOCATION)
-OPT_LOCATION_DB       = "db"
-OPT_LOCATION_DB_SHORT = str("-" + OPT_LOCATION_DB[:1])
-OPT_LOCATION_DB_EXT   = str("--" + OPT_LOCATION_DB)
-OPT_CACHE             = "cache"
-OPT_CACHE_SHORT       = str("-" + OPT_CACHE[:1])
-OPT_CACHE_EXT         = str("--" + OPT_CACHE)
-OPT_CACHE_REQUIRE     = [
+OPT_DB       = "db"
+OPT_DB_SHORT = str("-" + OPT_DB[:1])
+OPT_DB_EXT   = str("--" + OPT_DB)
+
+OPT_STORE             = "store"
+OPT_STORE_SHORT       = str("-" + OPT_STORE[:1])
+OPT_STORE_EXT         = str("--" + OPT_STORE)
+OPT_STORE_REQUIRE     = [
     OPT_ORGANISM,
     OPT_NAMESPACE,
     OPT_GENOME,
-    OPT_FILE
+    OPT_INPUT
 ]
-OPT_CACHE_REQUIRE_CLI = [
+OPT_STORE_REQUIRE_CLI = [
     OPT_ORGANISM_SHORT,
     OPT_NAMESPACE_SHORT,
     OPT_GENOME_SHORT,
-    OPT_FILE_SHORT
+    OPT_INPUT_SHORT
 ]
-OPT_ALLOWED             = "allowed"
-OPT_ALLOWED_SHORT       = str("-" + OPT_ALLOWED[:1])
-OPT_ALLOWED_EXT         = str("--" + OPT_ALLOWED)
-OPT_ALLOWED_REQUIRE     = [
+OPT_FILTER             = "filter"
+OPT_FILTER_SHORT       = str("-" + OPT_FILTER[:1])
+OPT_FILTER_EXT         = str("--" + OPT_FILTER)
+OPT_FILTER_REQUIRE     = [
     OPT_ORGANISM,
     OPT_NAMESPACE,
     OPT_GENOME,
-    OPT_FILE
+    OPT_INPUT
 ]
-OPT_ALLOWED_REQUIRE_CLI = [
+OPT_FILTER_REQUIRE_CLI = [
     OPT_ORGANISM_SHORT,
     OPT_NAMESPACE_SHORT,
     OPT_GENOME_SHORT
@@ -57,15 +55,15 @@ OPT_ALLOWED_REQUIRE_CLI = [
 OPT_PREDICT       = "predict"
 OPT_PREDICT_SHORT = str("-" + OPT_PREDICT[:1])
 OPT_PREDICT_EXT   = str("--" + OPT_PREDICT)
-OPT_SIMULATE       = "simulate"
-OPT_SIMULATE_SHORT = str("-" + OPT_SIMULATE[:1])
-OPT_SIMULATE_EXT   = str("--" + OPT_SIMULATE)
+OPT_TEST       = "test"
+OPT_TEST_SHORT = str("-" + OPT_TEST[:1])
+OPT_TEST_EXT   = str("--" + OPT_TEST)
 
 
 # option dependencies
 OPTS_DEPENDENCIES = {
-    OPT_CACHE: OPT_CACHE_REQUIRE,
-    OPT_ALLOWED: OPT_ALLOWED_REQUIRE
+    OPT_STORE: OPT_STORE_REQUIRE,
+    OPT_FILTER: OPT_FILTER_REQUIRE
 }
 
 
