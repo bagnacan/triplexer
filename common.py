@@ -23,10 +23,10 @@ OPT_DB       = "db"
 OPT_DB_SHORT = str("-" + OPT_DB[:1])
 OPT_DB_EXT   = str("--" + OPT_DB)
 
-OPT_STORE             = "store"
-OPT_STORE_SHORT       = str("-" + OPT_STORE[:1])
-OPT_STORE_EXT         = str("--" + OPT_STORE)
-OPT_STORE_REQUIRE     = [
+OPT_STORE         = "store"
+OPT_STORE_SHORT   = str("-" + OPT_STORE[:1])
+OPT_STORE_EXT     = str("--" + OPT_STORE)
+OPT_STORE_REQUIRE = [
     OPT_ORGANISM,
     OPT_NAMESPACE,
     OPT_GENOME,
@@ -38,10 +38,10 @@ OPT_STORE_REQUIRE_CLI = [
     OPT_GENOME_SHORT,
     OPT_INPUT_SHORT
 ]
-OPT_FILTER             = "filter"
-OPT_FILTER_SHORT       = str("-" + OPT_FILTER[:1])
-OPT_FILTER_EXT         = str("--" + OPT_FILTER)
-OPT_FILTER_REQUIRE     = [
+OPT_FILTER         = "filter"
+OPT_FILTER_SHORT   = str("-" + OPT_FILTER[:1])
+OPT_FILTER_EXT     = str("--" + OPT_FILTER)
+OPT_FILTER_REQUIRE = [
     OPT_ORGANISM,
     OPT_NAMESPACE,
     OPT_GENOME,

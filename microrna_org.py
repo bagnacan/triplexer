@@ -86,7 +86,7 @@ def get_caching_namespace(options):
 #
 # read the microrna.org target prediction file and cache all putative triplexes
 #
-def cache(store, options):
+def store(cache, options):
     """
     Reads the supplied microrna.org target prediction file, and caches all
     stored duplexes within it.
@@ -154,7 +154,7 @@ def cache(store, options):
                 try:
                     # cache the dictionary representation of the current duplex
                     # in a redis hash
-                    store.hmset(duplex, target_hash)
+                    cache.hmset(duplex, target_hash)
                     logger.debug(
                         "      Cached key-value pair duplex %s with attributes from line %d",
                         duplex, count_lines
@@ -162,14 +162,14 @@ def cache(store, options):
 
                     # cache the redis hash reference in a redis set of duplexes
                     # sharing the same target
-                    store.sadd(target_duplexes, duplex)
+                    cache.sadd(target_duplexes, duplex)
                     logger.debug(
                         "      Cached duplex id %s as relative to target %s",
                         duplex, target
                     )
 
                     # cache the target in a redis set
-                    store.sadd(targets, target)
+                    cache.sadd(targets, target)
                     logger.debug("      Cached target id %s", target)
 
                 except redis.ConnectionError:
@@ -186,7 +186,7 @@ def cache(store, options):
 
     logger.info(
         "  Found %s RNA duplexes across %s target genes",
-        str(count_duplexes), str(store.scard(targets))
+        str(count_duplexes), str(cache.scard(targets))
     )
 
 
@@ -237,7 +237,7 @@ def get_hash(line):
 # duplex (for each scanned target)
 # TODO: this function must be source-agnostic, i.e. comparisons should be made
 # regardless the data is from microrna.org, TargetScan, etc.
-def allowed(store, options):
+def filter(cache, options):
     """
     Retrieves each target and set of associated duplexes, and builds a list
     containing all possible comparisons among those duplexes whose seed-binding
@@ -251,7 +251,7 @@ def allowed(store, options):
     # generate all comparison jobs in parallel, assigning the same job to as
     # many processes as number of given cores
     procs = [
-        Process(target=generate_allowed_comparisons, args=(store, options, x)) for x in range(int(options[OPT_CORES]))
+        Process(target=generate_allowed_comparisons, args=(cache, options, x)) for x in range(int(options[OPT_CORES]))
     ]
     [p.start() for p in procs]
     [p.join() for p in procs]
@@ -262,7 +262,7 @@ def allowed(store, options):
 # generate the allowed duplex-pair comparison list
 # TODO: this function must be source-agnostic, i.e. comparisons should be made
 # regardless the data is from microrna.org, TargetScan, etc.
-def generate_allowed_comparisons(store, options, core):
+def generate_allowed_comparisons(cache, options, core):
     """
     Takes each target gene's cached duplex, and compares them all to spot
     duplexes whose miRNA binds the mutual target within the seed binding range
@@ -288,7 +288,7 @@ def generate_allowed_comparisons(store, options, core):
         # positions), test whether the binding distance is within the binding
         # range outlined by Saetrom et al. (Saetrom et al. 2007)
 
-        target = store.spop( (namespace + str(":targets")) )
+        target = cache.spop( (namespace + str(":targets")) )
 
         # (popped targets will be cached in another set to allow further
         # operations, or ignored in case they do not form any allowed RNA
@@ -305,7 +305,7 @@ def generate_allowed_comparisons(store, options, core):
 
             # compute all possible duplex-pairs
 
-            target_duplexes = store.smembers( (target + ":duplexes"))
+            target_duplexes = cache.smembers( (target + ":duplexes"))
 
             logger.debug(
                 "    Worker %d:   Target found in %d duplexes",
@@ -328,7 +328,7 @@ def generate_allowed_comparisons(store, options, core):
                 # get the miRNA-target binding start position
                 duplex1 = duplex_comparison[0]
                 duplex1_alignment_start = int(
-                    store.hget(duplex1, ALIGNMENT_GENE_START)
+                    cache.hget(duplex1, ALIGNMENT_GENE_START)
                 )
 
                 logger.debug(
@@ -339,7 +339,7 @@ def generate_allowed_comparisons(store, options, core):
                 # get the miRNA-target binding start position
                 duplex2 = duplex_comparison[1]
                 duplex2_alignment_start = int(
-                    store.hget(duplex2, ALIGNMENT_GENE_START)
+                    cache.hget(duplex2, ALIGNMENT_GENE_START)
                 )
 
                 logger.debug(
@@ -387,7 +387,7 @@ def generate_allowed_comparisons(store, options, core):
 
                 # cache the popped target in a set of allowed seed
                 # binding range targets
-                store.sadd((namespace + ":targets:binding"), target)
+                cache.sadd((namespace + ":targets:binding"), target)
 
                 logger.debug(
                     "    Worker %d:   Cached target in allowed seed binding range targets",
@@ -395,7 +395,7 @@ def generate_allowed_comparisons(store, options, core):
                 )
 
                 # cache the allowed duplex comparisons
-                store.sadd(
+                cache.sadd(
                     (target + ":duplexes:binding"),
                     duplex_comparisons_allowed
                 )
