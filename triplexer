@@ -29,8 +29,8 @@ parser.add_argument(
     help="print the version and exit"
 )
 parser.add_argument(
-    "-i",
-    "--init",
+    "-c",
+    "--conf",
     metavar="CONF",
     default="conf.yaml",
     type=argparse.FileType("r"),
@@ -43,19 +43,27 @@ parser.add_argument(
     default="2",
     help="set %(metavar)s as the number of parallel execution cores (default: %(default)s)"
 )
+#parser.add_argument(
+#    OPT_LOCATION_SHORT,
+#    OPT_LOCATION_EXT,
+#    metavar="STORE",
+#    default="127.0.0.1:6379",
+#    help="set %(metavar)s as the location for all intermediate results (default: %(default)s)"
+#)
+#parser.add_argument(
+#    OPT_LOCATION_DB_SHORT,
+#    OPT_LOCATION_DB_EXT,
+#    metavar="DB",
+#    default="0",
+#    help="set %(metavar)s as the location database for all intermediate results (default: %(default)s)"
+#)
+
 parser.add_argument(
-    OPT_LOCATION_SHORT,
-    OPT_LOCATION_EXT,
-    metavar="STORE",
-    default="127.0.0.1:6379",
-    help="set %(metavar)s as the location for all intermediate results (default: %(default)s)"
-)
-parser.add_argument(
-    OPT_LOCATION_DB_SHORT,
-    OPT_LOCATION_DB_EXT,
+    OPT_DB_SHORT,
+    OPT_DB_EXT,
     metavar="DB",
-    default="0",
-    help="set %(metavar)s as the location database for all intermediate results (default: %(default)s)"
+    default="127.0.0.1:6379",
+    help="set %(metavar)s as the database to store all intermediate results (default: %(default)s)"
 )
 
 
@@ -80,9 +88,9 @@ parser_to.add_argument(
     help="set %(metavar)s as the target organism's genome release"
 )
 parser_to.add_argument(
-    OPT_FILE_SHORT,
-    OPT_FILE_EXT,
-    metavar="FILE",
+    OPT_INPUT_SHORT,
+    OPT_INPUT_EXT,
+    metavar="INPUT",
     type=(lambda x: is_file(parser, x)),
     help="set %(metavar)s as the target organism's source dataset file"
 )
@@ -118,7 +126,7 @@ parser_op.add_argument(
     OPT_SIMULATE_SHORT,
     OPT_SIMULATE_EXT,
     action="store_true",
-    help="simulate the stability of predicted putative triplexes"
+    help="test the stability of predicted putative triplexes"
 )
 
 
@@ -263,11 +271,11 @@ if __name__ == "__main__":
 
     # underlying redis cache not reachable
     # ==> exit
-    logger.info("Checking redis cache at %s", options[OPT_LOCATION])
+    logger.info("Checking redis cache at %s", options[OPT_DB])
     store = redis.StrictRedis(
-        host=options[OPT_LOCATION].split(SEPARATOR)[0],
-        port=options[OPT_LOCATION].split(SEPARATOR)[1],
-        db=options[OPT_LOCATION_DB])
+        host=options[OPT_DB].split(SEPARATOR)[0],
+        port=options[OPT_DB].split(SEPARATOR)[1],
+        db=0)
     try:
         store.ping()
     except redis.RedisError:
