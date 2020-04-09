@@ -148,8 +148,8 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_STORE: microrna_org.cache,
-    OPT_FILTER: microrna_org.allowed
+    OPT_STORE: microrna_org.store,
+    OPT_FILTER: microrna_org.filter
 }
 
 
@@ -205,7 +205,7 @@ def run(operation, options):
     """
 
     logger.info("Operation \"%s\" started", operation)
-    launch[operation](store, options)
+    launch[operation](cache, options)
     logger.info("Operation \"%s\" completed", operation)
 
 
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     # ==> print help and exit
     for operation in operations:
 
-        if options[operation] and (not operation_provides_required_options(operation, options)):
+        if (operation in options.keys()) and (not operation_provides_required_options(operation, options)):
             logger.error("Operation \"%s\" is missing mandatory options. Exiting", operation)
             parser.print_help(file=sys.stderr)
             sys.exit(2)
@@ -266,12 +266,12 @@ if __name__ == "__main__":
     # underlying redis cache not reachable
     # ==> exit
     logger.info("Checking redis cache at %s", options[OPT_DB])
-    store = redis.StrictRedis(
+    cache = redis.Redis(
         host=options[OPT_DB].split(SEPARATOR)[0],
         port=options[OPT_DB].split(SEPARATOR)[1],
         db=0)
     try:
-        store.ping()
+        cache.ping()
     except redis.RedisError:
         logger.error("Redis instance not running. Exiting")
         sys.exit(2)
@@ -279,6 +279,6 @@ if __name__ == "__main__":
 
     # launch all the provided operations
     for operation in operations:
-        if options[operation]:
+        if operation in options.keys():
             run(operation, options)
 

@@ -86,7 +86,7 @@ def get_caching_namespace(options):
 #
 # read the microrna.org target prediction file and cache all putative triplexes
 #
-def cache(store, options):
+def store(cache, options):
     """
     Reads the supplied microrna.org target prediction file, and caches all
     stored duplexes within it.
@@ -154,7 +154,7 @@ def cache(store, options):
                 try:
                     # cache the dictionary representation of the current duplex
                     # in a redis hash
-                    store.hmset(duplex, target_hash)
+                    cache.hmset(duplex, target_hash)
                     logger.debug(
                         "      Cached key-value pair duplex %s with attributes from line %d",
                         duplex, count_lines
@@ -162,14 +162,14 @@ def cache(store, options):
 
                     # cache the redis hash reference in a redis set of duplexes
                     # sharing the same target
-                    store.sadd(target_duplexes, duplex)
+                    cache.sadd(target_duplexes, duplex)
                     logger.debug(
                         "      Cached duplex id %s as relative to target %s",
                         duplex, target
                     )
 
                     # cache the target in a redis set
-                    store.sadd(targets, target)
+                    cache.sadd(targets, target)
                     logger.debug("      Cached target id %s", target)
 
                 except redis.ConnectionError:
@@ -186,7 +186,7 @@ def cache(store, options):
 
     logger.info(
         "  Found %s RNA duplexes across %s target genes",
-        str(count_duplexes), str(store.scard(targets))
+        str(count_duplexes), str(cache.scard(targets))
     )
 
 
@@ -237,7 +237,7 @@ def get_hash(line):
 # duplex (for each scanned target)
 # TODO: this function must be source-agnostic, i.e. comparisons should be made
 # regardless the data is from microrna.org, TargetScan, etc.
-def allowed(store, options):
+def filter(store, options):
     """
     Retrieves each target and set of associated duplexes, and builds a list
     containing all possible comparisons among those duplexes whose seed-binding
