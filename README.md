@@ -1,6 +1,6 @@
 <div id="top"></div>
 
-
+[![Docker Repository on Quay](https://quay.io/repository/bagnacan/triplexer/status "Docker Repository on Quay")](https://quay.io/repository/bagnacan/triplexer)
 
 # Triplexer
 
@@ -32,17 +32,19 @@ aforementioned ones, can rely on [Kitematic](https://kitematic.com/)
 
 ## Usage
 
-To use the Triplexer, you first need to build and run its Docker container:
+Move to the directory where you keep the data that you want to analyze using
+the Triplexer pipeline, and run:
 ```
-docker build -t triplexer .
-docker run -it -v $(pwd):/tmp triplexer:latest
+docker run -it -v $(pwd):/data triplexer:latest
 ```
 
-Once inside the container's interactive environment, the Triplexer can be
-launched from the command line.  
-The full list of options is revealed by running the Triplexer without
-arguments:
+This command will run the Triplexer container, and bind-mount your directory
+to the ``/data`` directory that is within the running container. This means
+that you will be able to see your data by issuing ``ls -l`` in the command
+line prompt.
 
+You are now able to run the Triplexer. Launch it with no arguments to see its
+command line options:
 ```
 $ ./triplexer
 
