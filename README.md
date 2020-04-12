@@ -5,7 +5,12 @@
 # Triplexer
 
 The Triplexer is a computational pipeline that builds the backend database of
-the [TriplexRNA](https://triplexrna.org).
+the [TriplexRNA](https://triplexrna.org): a database of cooperative microRNAs
+and their mutual targets.  
+The Triplexer is based on the work of
+[Lai *et al.*](https://doi.org/10.1093/nar/gks657) and
+[Schmitz *et al.*](https://doi.org/10.1093/nar/gku465), and extends it for
+multiple organisms and prediction algorithms.
 
 - [Installation requirements](#installation-requirements)
 - [Usage](#usage)
@@ -25,26 +30,25 @@ on their distribution's instructions
 [Docker installation for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows)
 - Non-unix users, whose operative system version is older than the
 aforementioned ones, can rely on [Kitematic](https://kitematic.com/)
-
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
 
 ## Usage
 
-Move to the directory where you keep the data that you want to analyze using
-the Triplexer pipeline, and run:
+Move to the directory that stores the data that you want to analyze using the
+Triplexer pipeline, then run:
 ```
 docker run -it -v $(pwd):/data triplexer:latest
 ```
 
-This command will run the Triplexer container, and bind-mount your directory
-to the ``/data`` directory that is within the running container. This means
-that you will be able to see your data by issuing ``ls -l`` in the command
+This command runs the Triplexer docker container, and bind-mounts your
+directory to the ``/data`` directory that is within the running container. This
+means that you are be able to see your data by issuing ``ls -l`` in the command
 line prompt.
 
-You are now able to run the Triplexer. Launch it with no arguments to see its
-command line options:
+You can now run the Triplexer. Launch it with no arguments to check its command
+line options:
 ```
 $ ./triplexer
 
@@ -69,5 +73,4 @@ operations:
   -p, --predict         predict putative triplexes
   -t, --test            test stability of predicted triplexes
 ```
-
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
