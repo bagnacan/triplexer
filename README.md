@@ -39,7 +39,7 @@ aforementioned ones, can rely on [Kitematic](https://kitematic.com/)
 Move to the directory that stores the data that you want to analyze using the
 Triplexer pipeline, then run:
 ```
-docker run -it -v $(pwd):/data triplexer:latest
+docker run -it -v $(pwd):/data quay.io/bagnacan/triplexer:latest
 ```
 
 This command runs the Triplexer docker container, and bind-mounts your
