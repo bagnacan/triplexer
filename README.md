@@ -8,8 +8,8 @@ The Triplexer is a computational pipeline that builds the backend database of
 the [TriplexRNA](https://triplexrna.org): a database of cooperative microRNAs
 and their mutual targets.  
 The Triplexer is based on the work of
-[Lai *et al.*](https://doi.org/10.1093/nar/gks657) and
-[Schmitz *et al.*](https://doi.org/10.1093/nar/gku465), and extends it for
+[Lai et al.](https://doi.org/10.1093/nar/gks657) and
+[Schmitz et al.](https://doi.org/10.1093/nar/gku465), and extends it for
 multiple organisms and prediction algorithms.
 
 - [Installation requirements](#installation-requirements)
