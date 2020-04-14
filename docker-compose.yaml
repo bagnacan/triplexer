@@ -1,0 +1,19 @@
+version: '3'
+services:
+
+  pipeline:
+    image: triplexer-pipeline:latest
+    build:
+      context: .
+    container_name: triplexer-pipeline
+    hostname: triplexer-pipeline
+    volumes:
+      - .:/data
+    depends_on:
+      - redis
+    links:
+      - redis
+
+  redis:
+    container_name: triplexer-cache
+    image: "redis:5"
