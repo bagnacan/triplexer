@@ -2,11 +2,9 @@ version: '3'
 services:
 
   pipeline:
-    image: triplexer-pipeline:latest
-    build:
-      context: .
     container_name: triplexer-pipeline
-    hostname: triplexer-pipeline
+    image: quay.io/bagnacan/triplexer:latest
+    hostname: triplexer
     volumes:
       - .:/data
     depends_on:
@@ -16,4 +14,4 @@ services:
 
   redis:
     container_name: triplexer-cache
-    image: "redis:5"
+    image: 'redis:5'
