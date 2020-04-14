@@ -48,7 +48,7 @@ parser.add_argument(
     OPT_DB_SHORT,
     OPT_DB_EXT,
     metavar="DB",
-    default="127.0.0.1:6379",
+    default="redis:6379",
     help="set %(metavar)s as intermediate results database"
 )
 

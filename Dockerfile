@@ -167,9 +167,8 @@ RUN set -ex; \
 RUN pip install redis
 
 # triplexer
-COPY ["common.py", "conf.yaml", "microrna_org.py", "triplexer",  "/opt/"]
-COPY ["test_data", "/opt/test_data"]
-WORKDIR /opt
-CMD mkdir /data
+COPY ["common.py", "conf.yaml", "microrna_org.py", "triplexer",  "/srv/"]
+COPY ["data", "/srv/data"]
+WORKDIR /srv
 USER user
 CMD ["bash"]
