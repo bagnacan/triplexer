@@ -169,6 +169,7 @@ RUN pip install redis
 # triplexer
 COPY ["common.py", "conf.yaml", "microrna_org.py", "triplexer",  "/srv/"]
 COPY ["data", "/srv/data"]
+ENV PATH="/srv:${PATH}"
 WORKDIR /srv
 USER user
 CMD ["bash"]
