@@ -54,7 +54,7 @@ optional arguments:
   -d DB, --db DB        set DB as intermediate results database (default: redis:6379)
 
 operations:
-  -s, --store           store the provided dataset (requires: -o, -n, -g, -i)
+  -r, --read            read the provided dataset in memory (requires: -o, -n, -g, -i)
   -f, --filter          filter entries not forming putative triplexes (requires: -o, -n, -g)
   -p, --predict         predict putative triplexes
   -t, --test            test stability of predicted triplexes
