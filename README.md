@@ -70,6 +70,6 @@ target organism:
 **Example**: Read microrna.org's Human (hg19) [target site predictions](http://www.microrna.org/microrna/getDownloads.do)
 in memory, for later filtering for RNA triplex constraints and stability testing:
 ```
-triplexer -s -o hsa -g hg19 -n microrna_org -i /data/human_predictions_S_C_aug2010.txt
+triplexer -r -o hsa -g hg19 -n microrna_org -i /data/human_predictions_S_C_aug2010.txt
 ```
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
