@@ -86,7 +86,7 @@ def get_caching_namespace(options):
 #
 # read the microrna.org target prediction file and cache all putative triplexes
 #
-def store(cache, options):
+def read(cache, options):
     """
     Reads the supplied microrna.org target prediction file, and caches all
     stored duplexes within it.

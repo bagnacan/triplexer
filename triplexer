@@ -148,7 +148,7 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_READ: microrna_org.store,
+    OPT_READ: microrna_org.read,
     OPT_FILTER: microrna_org.filter
 }
 
