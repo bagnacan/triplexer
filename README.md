@@ -21,36 +21,29 @@ multiple organisms and prediction algorithms.
 
 The only requirement is [Docker](https://www.docker.com/), which can be
 installed in different ways depending on the underlying operative system:
-- Unix users should follow the
-[Docker installation for Linux](https://docs.docker.com/installation), or rely
-on their distribution's instructions
-- MacOS 10.12+ users should follow the
-[Docker installation for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac)
-- Windows 10+ users, should follow the
-[Docker installation for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows)
-- Non-unix users, whose operative system version is older than the
-aforementioned ones, can rely on [Kitematic](https://kitematic.com/)
+- Unix users should follow the [Docker installation for Linux](https://docs.docker.com/compose/install/#install-compose-on-linux-systems#install-compose-on-linux-systems),
+and install both Docker and Docker compose
+- MacOS 10.13+ users should follow the [Docker installation for Mac](https://docs.docker.com/docker-for-mac/install/)
+- Windows 10+ users, should follow the [Docker installation for Windows](https://docs.docker.com/docker-for-windows/install/)
+- For legacy systems, users can rely on the [Docker Toolbox](https://docs.docker.com/toolbox/overview/)
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
 
 ## Usage
 
-Move to the directory that stores the data that you want to analyze using the
-Triplexer pipeline, then run:
+To launch the Triplexer docker container, run:
 ```
-docker run -it -v $(pwd):/data quay.io/bagnacan/triplexer:latest
+docker-compose run pipeline
 ```
 
-This command runs the Triplexer docker container, and bind-mounts your
-directory to the ``/data`` directory that is within the running container. This
-means that you are be able to see your data by issuing ``ls -l`` in the command
-line prompt.
+This command runs the Triplexer docker container and all the containers it
+relies on.  
 
-You can now run the Triplexer. Launch it with no arguments to check its command
-line options:
+You can now run the Triplexer pipeline. Launch it with no arguments to check
+its command line options:
 ```
-$ ./triplexer
+$ triplexer
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -77,6 +70,6 @@ operations:
 **Example**: Read microrna.org's Human (hg19) [target site predictions](http://www.microrna.org/microrna/getDownloads.do)
 in memory, for later filtering for RNA triplex constraints and stability testing:
 ```
-./triplexer -s -o hsa -g hg19 -n microrna_org -i /data/human_predictions_S_C_aug2010.txt
+triplexer -s -o hsa -g hg19 -n microrna_org -i /data/human_predictions_S_C_aug2010.txt
 ```
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
