@@ -23,16 +23,16 @@ OPT_DB       = "db"
 OPT_DB_SHORT = str("-" + OPT_DB[:1])
 OPT_DB_EXT   = str("--" + OPT_DB)
 
-OPT_STORE         = "store"
-OPT_STORE_SHORT   = str("-" + OPT_STORE[:1])
-OPT_STORE_EXT     = str("--" + OPT_STORE)
-OPT_STORE_REQUIRE = [
+OPT_READ         = "read"
+OPT_READ_SHORT   = str("-" + OPT_READ[:1])
+OPT_READ_EXT     = str("--" + OPT_READ)
+OPT_READ_REQUIRE = [
     OPT_ORGANISM,
     OPT_NAMESPACE,
     OPT_GENOME,
     OPT_INPUT
 ]
-OPT_STORE_REQUIRE_CLI = [
+OPT_READ_REQUIRE_CLI = [
     OPT_ORGANISM_SHORT,
     OPT_NAMESPACE_SHORT,
     OPT_GENOME_SHORT,
@@ -62,7 +62,7 @@ OPT_TEST_EXT   = str("--" + OPT_TEST)
 
 # option dependencies
 OPTS_DEPENDENCIES = {
-    OPT_STORE: OPT_STORE_REQUIRE,
+    OPT_READ: OPT_READ_REQUIRE,
     OPT_FILTER: OPT_FILTER_REQUIRE
 }
 

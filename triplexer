@@ -53,8 +53,46 @@ parser.add_argument(
 )
 
 
+# operation parser
+parser_op = parser.add_argument_group("operations")
+parser_op.add_argument(
+    OPT_READ_SHORT,
+    OPT_READ_EXT,
+    action="store_true",
+    default=argparse.SUPPRESS,
+    help=str(
+        "read the provided dataset in memory (requires: " +
+        ", ".join( str(x) for x in OPT_READ_REQUIRE_CLI) + ")"
+    )
+)
+parser_op.add_argument(
+    OPT_FILTER_SHORT,
+    OPT_FILTER_EXT,
+    action="store_true",
+    default=argparse.SUPPRESS,
+    help=str(
+        "filter entries not forming putative triplexes (requires: " +
+        ", ".join( str(x) for x in OPT_FILTER_REQUIRE_CLI) + ")"
+    )
+)
+parser_op.add_argument(
+    OPT_PREDICT_SHORT,
+    OPT_PREDICT_EXT,
+    action="store_true",
+    default=argparse.SUPPRESS,
+    help="predict putative triplexes"
+)
+parser_op.add_argument(
+    OPT_TEST_SHORT,
+    OPT_TEST_EXT,
+    action="store_true",
+    default=argparse.SUPPRESS,
+    help="test stability of predicted triplexes"
+)
+
+
 # organism data parser
-parser_to = parser.add_argument_group("target organism data")
+parser_to = parser.add_argument_group("target organism")
 parser_to.add_argument(
     OPT_ORGANISM_SHORT,
     OPT_ORGANISM_EXT,
@@ -86,44 +124,6 @@ parser_to.add_argument(
 )
 
 
-# operation parser
-parser_op = parser.add_argument_group("operations")
-parser_op.add_argument(
-    OPT_STORE_SHORT,
-    OPT_STORE_EXT,
-    action="store_true",
-    default=argparse.SUPPRESS,
-    help=str(
-        "store the provided dataset (requires: " +
-        ", ".join( str(x) for x in OPT_STORE_REQUIRE_CLI) + ")"
-    )
-)
-parser_op.add_argument(
-    OPT_FILTER_SHORT,
-    OPT_FILTER_EXT,
-    action="store_true",
-    default=argparse.SUPPRESS,
-    help=str(
-        "filter entries not forming putative triplexes (requires: " +
-        ", ".join( str(x) for x in OPT_FILTER_REQUIRE_CLI) + ")"
-    )
-)
-parser_op.add_argument(
-    OPT_PREDICT_SHORT,
-    OPT_PREDICT_EXT,
-    action="store_true",
-    default=argparse.SUPPRESS,
-    help="predict putative triplexes"
-)
-parser_op.add_argument(
-    OPT_TEST_SHORT,
-    OPT_TEST_EXT,
-    action="store_true",
-    default=argparse.SUPPRESS,
-    help="test stability of predicted triplexes"
-)
-
-
 # logger
 logger = logging.getLogger(MODULE)
 
@@ -148,7 +148,7 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_STORE: microrna_org.store,
+    OPT_READ: microrna_org.store,
     OPT_FILTER: microrna_org.filter
 }
 
@@ -247,7 +247,7 @@ if __name__ == "__main__":
 
     # operation precedence:
     operations = [
-        OPT_STORE,
+        OPT_READ,
         OPT_FILTER,
         OPT_PREDICT,
         OPT_TEST

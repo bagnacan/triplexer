@@ -32,18 +32,18 @@ and install both Docker and Docker compose
 
 ## Usage
 
-To launch the Triplexer docker container, run:
+To run the Triplexer docker container and all containers it relies on, type:
 ```
 docker-compose run triplexer
 ```
 
-This command runs the Triplexer docker container and all the containers it
-relies on.  
-
-You can now run the Triplexer pipeline. Launch it with no arguments to check
+You can now launch the Triplexer pipeline. Try it with no arguments to overview
 its command line options:
 ```
 $ triplexer
+usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-s] [-f] [-p] [-t] [-o ORG] [-n NS] [-g GEN] [-i INPUT]
+
+Predict and simulate putative RNA triplexes.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -51,25 +51,25 @@ optional arguments:
   -c CONF, --conf CONF  set CONF as configuration file (default: conf.yaml)
   -x CORES, --exe CORES
                         set CORES as number of parallel processes (default: 2)
-  -d DB, --db DB        set DB as intermediate results database (default: 127.0.0.1:6379)
+  -d DB, --db DB        set DB as intermediate results database (default: redis:6379)
 
-target organism data:
+operations:
+  -r, --read            read the provided dataset in memory (requires: -o, -n, -g, -i)
+  -f, --filter          filter entries not forming putative triplexes (requires: -o, -n, -g)
+  -p, --predict         predict putative triplexes
+  -t, --test            test stability of predicted triplexes
+
+target organism:
   -o ORG, --org ORG     set ORG as model organism
   -n NS, --ns NS        set NS as model organism namespace
   -g GEN, --genome GEN  set GEN as model organism genome release
   -i INPUT, --input INPUT
                         set INPUT as model organism input dataset
-
-operations:
-  -s, --store           store the provided dataset (requires: -o, -n, -g, -i)
-  -f, --filter          filter entries not forming putative triplexes (requires: -o, -n, -g)
-  -p, --predict         predict putative triplexes
-  -t, --test            test stability of predicted triplexes
 ```
 
 **Example**: Read microrna.org's Human (hg19) [target site predictions](http://www.microrna.org/microrna/getDownloads.do)
 in memory, for later filtering for RNA triplex constraints and stability testing:
 ```
-triplexer -s -o hsa -g hg19 -n microrna_org -i /data/human_predictions_S_C_aug2010.txt
+triplexer -r -o hsa -g hg19 -n microrna_org -i /data/human_predictions_S_C_aug2010.txt
 ```
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
