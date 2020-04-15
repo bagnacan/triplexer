@@ -1,7 +1,7 @@
 version: '3'
 services:
 
-  pipeline:
+  triplexer:
     container_name: triplexer-pipeline
     image: quay.io/bagnacan/triplexer:latest
     hostname: triplexer

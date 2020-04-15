@@ -25,7 +25,7 @@ installed in different ways depending on the underlying operative system:
 and install both Docker and Docker compose
 - MacOS 10.13+ users should follow the [Docker installation for Mac](https://docs.docker.com/docker-for-mac/install/)
 - Windows 10+ users, should follow the [Docker installation for Windows](https://docs.docker.com/docker-for-windows/install/)
-- For legacy systems, users can rely on the [Docker Toolbox](https://docs.docker.com/toolbox/overview/)
+- For legacy systems, users can rely on the [Docker Toolbox](https://docs.docker.com/toolbox/overview/).
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
@@ -34,7 +34,7 @@ and install both Docker and Docker compose
 
 To launch the Triplexer docker container, run:
 ```
-docker-compose run pipeline
+docker-compose run triplexer
 ```
 
 This command runs the Triplexer docker container and all the containers it
