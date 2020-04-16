@@ -276,9 +276,10 @@ def generate_allowed_comparisons(cache, options, core):
     namespace = get_caching_namespace(options)
 
     # per-worker summary statistics
-    statistics_targets_all      = 0
-    statistics_targets_binding  = 0
-    statistics_duplexes_binding = 0
+    statistics_targets = 0
+    statistics_targets_with_duplex_pairs_within_range = 0
+    statistics_duplex_pairs = 0
+    statistics_duplex_pairs_binding_within_range = 0
 
     # work until there are available targets :)
     while True:
@@ -296,12 +297,11 @@ def generate_allowed_comparisons(cache, options, core):
         # triplex)
 
         if target:
-            #target = target.decode()
 
-            statistics_targets_all += 1
+            statistics_targets += 1
 
             logger.debug(
-                "    Worker %d: Generating allowed triplexes for target %s",
+                "    Worker %d: Computing allowed triplexes for target %s",
                 core, target)
 
             # compute all possible duplex-pairs
@@ -313,50 +313,50 @@ def generate_allowed_comparisons(cache, options, core):
                 core, len(target_duplexes)
             )
 
-            duplex_comparisons_all = list(
+            duplex_pairs = list(
                 itertools.combinations(target_duplexes, 2)
             )
 
-            duplex_comparisons_allowed = []
+            # keep a record
+            statistics_duplex_pairs += len(duplex_pairs)
+
+            duplex_pairs_binding_within_range = 0
 
             logger.debug(
-                "    Worker %d:   Comparing each duplex against each other for allowed (binding range) triplexes...",
-                core
+                "    Worker %d:   Target %s has %d duplex pairs",
+                core, target, len(duplex_pairs)
             )
 
-            for duplex_comparison in duplex_comparisons_all:
+            for duplex_pair in duplex_pairs:
 
                 # get the miRNA-target binding start position for duplex1
-                duplex1 = duplex_comparison[0]
+                duplex1 = duplex_pair[0]
                 duplex1_alignment_start = int(
                     cache.hget(duplex1, ALIGNMENT_GENE_START)
                 )
-
-                logger.debug(
-                    "    Worker %d:     Duplex %s aligns at %s",
-                    core, duplex1, duplex1_alignment_start
-                )
+                #logger.debug(
+                #    "    Worker %d:     Duplex %s aligns at %s",
+                #    core, duplex1, duplex1_alignment_start
+                #)
 
                 # get the miRNA-target binding start position for duplex2
-                duplex2 = duplex_comparison[1]
+                duplex2 = duplex_pair[1]
                 duplex2_alignment_start = int(
                     cache.hget(duplex2, ALIGNMENT_GENE_START)
                 )
-
-                logger.debug(
-                    "    Worker %d:     Duplex %s aligns at %s",
-                    core, duplex2, duplex2_alignment_start
-                )
+                #logger.debug(
+                #    "    Worker %d:     Duplex %s aligns at %s",
+                #    core, duplex2, duplex2_alignment_start
+                #)
 
                 # compute the binding distance
                 binding = abs(
                     duplex1_alignment_start - duplex2_alignment_start
                 )
-
-                logger.debug(
-                    "    Worker %d:     Duplex binding range is %s",
-                    core, binding
-                )
+                #logger.debug(
+                #    "    Worker %d:     Duplex binding range is %s",
+                #    core, binding
+                #)
 
                 # putative triplexes have their miRNAs binding a mutual target
                 # gene within 13-35 seed distance range (Saetrom et al. 2007).
@@ -367,51 +367,64 @@ def generate_allowed_comparisons(cache, options, core):
                 if (SEED_MAX_DISTANCE >= binding) and (binding >= SEED_MIN_DISTANCE):
 
                     logger.debug(
-                        "    Worker %d:       Duplex %s vs. %s --> range allowed (%d >= %d >= %d). Triplex kept",
-                        core, duplex1, duplex2, SEED_MAX_DISTANCE, binding, SEED_MIN_DISTANCE
+                        "    Worker %d:   Target %s duplex pair :%s and :%s bind within the allowed range (%d >= %d >= %d). Duplex pair kept",
+                        core, target,
+                        str(duplex1.split(SEPARATOR)[-1]),
+                        str(duplex2.split(SEPARATOR)[-1]),
+                        SEED_MAX_DISTANCE, binding, SEED_MIN_DISTANCE
                     )
 
-                    duplex_comparisons_allowed.append(duplex_comparison)
+                    # cache the duplex pairs whose seed site distance is within
+                    # the allowed range
+                    cache.lpush(
+                        (target + ":with_mirna_pair_in_allowed_binding_range"),
+                        duplex1
+                    )
+                    cache.lpush(
+                        (target + ":with_mirna_pair_in_allowed_binding_range"),
+                        duplex2
+                    )
+
+                    # keep a record of the number of binding-within-range
+                    # duplex pairs
+                    duplex_pairs_binding_within_range += 1
+                    statistics_duplex_pairs_binding_within_range += 1
 
                 else:
                     logger.debug(
-                        "    Worker %d:       Duplex %s vs. %s --> range disallowed. Triplex ignored",
-                        core, duplex1, duplex2
+                        "    Worker %d:   Target %s duplex pair :%s and :%s bind outside the allowed range. Duplex pair discarded",
+                        core, target,
+                        duplex1.split(SEPARATOR)[-1],
+                        duplex2.split(SEPARATOR)[-1]
                     )
 
+
+            logger.debug(
+                "    Worker %d:   Target %s found in %d duplex pairs, of which %d comply with the allowed binding range constraint",
+                core, target, len(duplex_pairs),
+                duplex_pairs_binding_within_range
+            )
+
             # cache all allowed duplex-pair comparisons
-            if duplex_comparisons_allowed:
-                statistics_targets_binding  += 1
-                statistics_duplexes_binding += len(duplex_comparisons_allowed)
+            if duplex_pairs_binding_within_range > 0:
+                statistics_targets_with_duplex_pairs_within_range += 1
 
                 # cache the popped target in a set of allowed seed
                 # binding range targets
-                cache.sadd((namespace + ":targets:binding"), target)
+                cache.sadd((namespace + ":targets:with_mirna_pair_in_allowed_binding_range"), target)
 
                 logger.debug(
-                    "    Worker %d:   Cached target in allowed seed binding range targets",
-                    core
-                )
-
-                # cache the allowed duplex comparisons
-                logger.info("Target: %s", target)
-                cache.sadd(
-                    (target + ":duplexes:binding"),
-                    duplex_comparisons_allowed
-                )
-
-                logger.debug(
-                    "    Worker %d:   Target %s forms %d allowed binding range triplexes among the %d possible duplex comparisons",
-                    core, target, len(duplex_comparisons_allowed),
-                    len(duplex_comparisons_all)
+                    "    Worker %d:   Target %s cached",
+                    core, target
                 )
 
         else:
             break
 
     logger.info(
-        "  Worker %d: Examined %d targets, %d of which are targeted by %d putative triplexes",
-        core, statistics_targets_all, statistics_targets_binding,
-        statistics_duplexes_binding
+        "  Worker %d: Examined %d targets and %d duplex pairs. Found %d targets with miRNA pairs binding within range, and %d putatively cooperating miRNA pairs",
+        core, statistics_targets, statistics_duplex_pairs,
+        statistics_targets_with_duplex_pairs_within_range,
+        statistics_duplex_pairs_binding_within_range
     )
 
