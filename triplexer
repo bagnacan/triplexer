@@ -148,7 +148,7 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_READ: microrna_org.store,
+    OPT_READ: microrna_org.read,
     OPT_FILTER: microrna_org.filter
 }
 
@@ -267,6 +267,7 @@ if __name__ == "__main__":
     # ==> exit
     logger.info("Checking redis cache at %s", options[OPT_DB])
     cache = redis.Redis(
+        charset="utf-8", decode_responses=True,
         host=options[OPT_DB].split(SEPARATOR)[0],
         port=options[OPT_DB].split(SEPARATOR)[1],
         db=0)
