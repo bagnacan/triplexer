@@ -101,7 +101,8 @@ def read(cache, options):
     # namespace
     namespace = get_caching_namespace(options)
 
-    logger.info("  Reading putative triplexes from microrna.org file %s ...", in_file)
+    logger.info("  Reading putative triplexes from microrna.org file \"%s\" ...", in_file)
+    logger.info("  Namespace \"%s\"", namespace)
 
 
     # each line represents a duplex, holding a target id, a miRNA id, and all
@@ -286,7 +287,7 @@ def generate_allowed_comparisons(cache, options, core):
         # comparisons from its associated duplex set. Regardless of the miRNA
         # IDs (the same miRNA can in fact bind the same target at different
         # positions), test whether the binding distance is within the binding
-        # range outlined by Saetrom et al. (Saetrom et al. 2007)
+        # range outlined by Saetrom et al. (2007)
 
         target = cache.spop( (namespace + str(":targets")) )
 
@@ -295,7 +296,7 @@ def generate_allowed_comparisons(cache, options, core):
         # triplex)
 
         if target:
-            target = target.decode()
+            #target = target.decode()
 
             statistics_targets_all += 1
 
@@ -325,7 +326,7 @@ def generate_allowed_comparisons(cache, options, core):
 
             for duplex_comparison in duplex_comparisons_all:
 
-                # get the miRNA-target binding start position
+                # get the miRNA-target binding start position for duplex1
                 duplex1 = duplex_comparison[0]
                 duplex1_alignment_start = int(
                     cache.hget(duplex1, ALIGNMENT_GENE_START)
@@ -336,7 +337,7 @@ def generate_allowed_comparisons(cache, options, core):
                     core, duplex1, duplex1_alignment_start
                 )
 
-                # get the miRNA-target binding start position
+                # get the miRNA-target binding start position for duplex2
                 duplex2 = duplex_comparison[1]
                 duplex2_alignment_start = int(
                     cache.hget(duplex2, ALIGNMENT_GENE_START)
@@ -361,10 +362,8 @@ def generate_allowed_comparisons(cache, options, core):
                 # gene within 13-35 seed distance range (Saetrom et al. 2007).
                 # Before proper statistical validation, a candidate triplex
                 # conserves this experimentally validated property.
-
-                # test whether the binding distance is within the allowed
-                # distance range (Saetrom et al. 2007), and if so, keep the
-                # duplex-pair comparison
+                # ==> Test whether the binding distance is within the allowed
+                # distance range, and if so, keep the duplex-pair comparison
                 if (SEED_MAX_DISTANCE >= binding) and (binding >= SEED_MIN_DISTANCE):
 
                     logger.debug(
@@ -395,6 +394,7 @@ def generate_allowed_comparisons(cache, options, core):
                 )
 
                 # cache the allowed duplex comparisons
+                logger.info("Target: %s", target)
                 cache.sadd(
                     (target + ":duplexes:binding"),
                     duplex_comparisons_allowed
