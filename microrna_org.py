@@ -284,11 +284,11 @@ def generate_allowed_comparisons(cache, options, core):
     # work until there are available targets :)
     while True:
 
-        # get the next available target, and create all allowed duplex-pair
-        # comparisons from its associated duplex set. Regardless of the miRNA
-        # IDs (the same miRNA can in fact bind the same target at different
-        # positions), test whether the binding distance is within the binding
-        # range outlined by Saetrom et al. (2007)
+        # get the next available target, and create all duplex-pairs from its
+        # associated duplex set. Regardless of the miRNA IDs (the same miRNA
+        # can in fact bind the same target at different positions), test
+        # whether the miRNA binding distance is within the range outlined by
+        # Saetrom et al. (2007)
 
         target = cache.spop( (namespace + str(":targets")) )
 
