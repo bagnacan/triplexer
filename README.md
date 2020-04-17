@@ -138,14 +138,15 @@ triplexer -r -o hsa -n microrna_org -g hg19 -i /data/human_predictions_S_C_aug20
 
 Experimental findings suggest that RNA triplexes form when two cooperating
 miRNAs bind a common target with a seed site distance between 13 and 35
-nucleotides (Saetrom et al. 2007). This means that among those cached duplexes
-that share a common target, there might also some that do not comply with the
-aforementioned seed site distance constraint.  
+nucleotides [(Saetrom et al. 2007)](https://doi.org/10.1093/nar/gkm133).
+This means that among those cached duplexes that share a common target, there
+might also some that do not comply with the aforementioned seed site distance
+constraint.  
 The *filter* operation takes all duplexes targeting some gene, creates an index
 of all possible duplex pairs, and discards those that do not comply with the
 constraint.  
 
-This operation relies on the cache created by the read operation.  
+This operation relies on the cache created by the read operation (see above).  
 With reference to the names defined in the [operation read](#operation-read)
 section, the filter's behavior can be summarized by the following pseudo-code:
 ```
