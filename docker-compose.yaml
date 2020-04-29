@@ -9,9 +9,15 @@ services:
       - .:/data
     depends_on:
       - redis
+      - nupack-serve
     links:
       - redis
+      - nupack-serve
 
   redis:
     container_name: triplexer-cache
     image: 'redis:5'
+
+  nupack-serve:
+    container_name: triplexer-nupack
+    image: quay.io/bagnacan/nupack-serve:latest
