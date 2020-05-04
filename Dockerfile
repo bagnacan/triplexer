@@ -172,4 +172,5 @@ COPY ["data", "/srv/data"]
 ENV PATH="/srv:${PATH}"
 WORKDIR /srv
 USER user
-CMD ["bash"]
+ENTRYPOINT ["/srv/triplexer"]
+CMD ["--help"]
