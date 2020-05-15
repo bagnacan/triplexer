@@ -43,7 +43,8 @@ You can now launch the Triplexer pipeline. Try it with no arguments to overview
 its command line options:
 ```
 $ triplexer
-usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-r] [-f] [-p] [-t] [-o ORG] [-n NS] [-g GEN] [-i INPUT]
+usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-r] [-f] [-p] [-t]
+                 [-o ORG] [-n NS] [-g GEN] [-i INPUT]
 
 Predict and simulate putative RNA triplexes.
 
@@ -53,14 +54,17 @@ optional arguments:
   -c CONF, --conf CONF  set CONF as configuration file (default: conf.yaml)
   -x CORES, --exe CORES
                         set CORES as number of parallel processes (default: 2)
-  -d DB, --db DB        set DB as intermediate results database (default: redis:6379)
+  -d DB, --db DB        set DB as intermediate results database (default:
+                        redis:6379)
 
 operations:
-  -r, --read            read the provided dataset in memory (requires: -o, -n, -g, -i)
-  -f, --filter          filter entries not forming putative triplexes (requires: -o, -n, -g)
+  -r, --read            read the provided dataset in memory (requires: -o, -n,
+                        -g, -i)
+  -f, --filter          filter entries not forming putative triplexes
+                        (requires: -o, -n, -g)
   -p, --predict         predict putative triplexes
   -t, --test            test stability of predicted triplexes
-  
+
 target organism:
   -o ORG, --org ORG     set ORG as model organism
   -n NS, --ns NS        set NS as model organism namespace
