@@ -164,7 +164,7 @@ RUN set -ex; \
   rm -f get-pip.py
 
 # triplexer dependencies
-RUN pip install redis
+RUN pip install redis pymysql
 
 # triplexer
 COPY ["common.py", "conf.yaml", "microrna_org.py", "triplexer",  "/srv/"]

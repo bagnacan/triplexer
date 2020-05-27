@@ -5,6 +5,7 @@
 
 import itertools
 import logging
+import pymysql
 import redis
 import sys
 from common import *
@@ -61,8 +62,56 @@ duplex = {
 }
 
 
+# UCSC MySQL interface
+UCSC_HOST = "genome-euro-mysql.soe.ucsc.edu"
+UCSC_USER = "genome"
+UCSC_PASS = None
+UCSC_PORT = 3306
+
+
+
 # logger
 logger = logging.getLogger("microrna.org")
+
+
+
+#
+# return the genomic coordinates of the provided refSeq identifier using the
+# UCSC genome browser
+#
+def genomic_coordinates(refseq_id, genome):
+    """
+    Queries UCSC's Table Browser (genome.ucsc.edu/goldenpath/help/mysql.html),
+    and returns the genomic coordinates of the provided refSeq ID.
+    """
+
+    query = "select g.chrom, g.txStart, g.txEnd, g.strand \
+        from refGene g, knownToRefSeq r where g.name = '%s' \
+        AND r.value = g.name;"%(refseq_id)
+
+    result = ""
+
+    db = pymysql.connect(host=UCSC_HOST, port=UCSC_PORT,
+        user=UCSC_USER, password=UCSC_PASS, database=genome)
+
+    cursor = db.cursor()
+
+    try:
+        cursor.execute(query)
+        data = cursor.fetchone()
+        chrom   = data[0]
+        txStart = data[1]
+        txEnd   = data[2]
+        strand  = data[3]
+
+        result += SEPARATOR.join(chrom, str(txStart), str(txEnd), strand)
+
+    except:
+        logger.error("Unable to fetch data from UCSC Table Browser")
+
+    db.close()
+
+    return result
 
 
 
