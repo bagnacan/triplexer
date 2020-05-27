@@ -104,7 +104,7 @@ def genomic_coordinates(refseq_id, genome):
         txEnd   = data[2]
         strand  = data[3]
 
-        result += SEPARATOR.join(chrom, str(txStart), str(txEnd), strand)
+        result += SEPARATOR.join(genome, chrom, str(txStart), str(txEnd), strand)
 
     except:
         logger.error("Unable to fetch data from UCSC Table Browser")
