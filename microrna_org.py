@@ -6,8 +6,11 @@
 import itertools
 import logging
 import pymysql
+import re
 import redis
+import requests
 import sys
+from bs4 import BeautifulSoup
 from common import *
 from multiprocessing import Process
 
@@ -69,6 +72,20 @@ UCSC_PASS = None
 UCSC_PORT = 3306
 
 
+# UCSC DAS server
+DAS_HOST  = "http://genome.ucsc.edu/cgi-bin/das/"
+DAS_QUERY = "/dna?segment="
+DAS_SEPARATOR = ","
+
+
+# genomic coordinates template:
+# <genome build>:<chromosome><tx. start site>:<tx. end site>:<strand>
+BUILD   = 0
+CHROM   = 1
+TXSTART = 2
+TXEND   = 3
+STRAND  = 4
+
 
 # logger
 logger = logging.getLogger("microrna.org")
@@ -104,12 +121,61 @@ def genomic_coordinates(refseq_id, genome):
         txEnd   = data[2]
         strand  = data[3]
 
-        result += SEPARATOR.join(chrom, str(txStart), str(txEnd), strand)
+        result += SEPARATOR.join(genome, chrom, str(txStart), str(txEnd), strand)
 
     except:
         logger.error("Unable to fetch data from UCSC Table Browser")
 
     db.close()
+
+    return result
+
+
+#
+# return the genomic sequence at the given genomic coordinates (e.g.
+# "hg19:chr20:32263282:32274191:-") using the UCSC DAS server
+#
+def genomic_sequence(genomic_coordinates):
+    """
+    Queries UCSC's DAS server (genome.ucsc.edu/cgi-bin/das), and returns the
+    genomic sequence at the provided genomic coordinates (e.g.
+    "hg19:chr20:32263283:32274191:-").
+    """
+
+    query = str(
+        DAS_HOST + genomic_coordinates[BUILD] +
+        DAS_QUERY + genomic_coordinates[CHROM] +
+        SEPARATOR + genomic_coordinates[TXSTART] +
+        DAS_SEPARATOR + genomic_coordinates[TXEND]
+    )
+
+    result = ""
+
+    try:
+        response = requests.get(query)
+
+        if response.status_code == 200:
+
+            # The UCSC DAS server wraps the genomic sequence in an XML tree
+            # that looks like the following:
+            #
+            # <DASDNA>
+            #   <SEQUENCE>
+            #     <DNA>
+            #     The sequence...
+            #     </DNA>
+            #   </SEQUENCE>
+            # </DASDNA>
+
+            # extract sequence from XML tree
+            soup = BeautifulSoup(response.content, 'html.parser')
+            result += re.sub('\n', '', soup.dna.string)
+        else:
+            logger.error("Unable to retrieve sequence at %s. DAS server returned Error code %s",
+                genomic_coordinates, str(response.status_code))
+
+    except:
+        logger.error("Ubable to fetch data from UCSC DAS server")
 
     return result
 
