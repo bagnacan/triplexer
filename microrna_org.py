@@ -126,14 +126,15 @@ def genomic_coordinates(refseq_id, genome):
         cursor.execute(query)
         data = cursor.fetchone()
 
-        result = Bio.SeqRecord(
-            seq="",
-            id=refseq_id,
-            annotations[GENOME_BUILD]=genome,
-            annotations[CHROMOSOME]=data[0],
-            annotations[TX_START]=(data[1] + 1), # (1-based counting)
-            annotations[TX_END]=data[2],
-            annotations[STRAND]=data[3])
+        # initialize the Bio.SeqRecord object
+        result = Bio.SeqRecord(seq="", id=refseq_id)
+
+        # annotate the Bio.SeqRecord object
+        result.annotations[GENOME_BUILD] = genome
+        result.annotations[CHROMOSOME] = data[0]
+        result.annotations[TX_START] = (data[1] + 1) # (1-based counting)
+        result.annotations[TX_END] = data[2]
+        result.annotations[STRAND] = data[3]
 
     except:
         logger.error("Unable to fetch data from UCSC Table Browser")
