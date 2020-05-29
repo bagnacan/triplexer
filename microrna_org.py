@@ -13,6 +13,9 @@ import sys
 from bs4 import BeautifulSoup
 from common import *
 from multiprocessing import Process
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.Alphabet import IUPAC
 
 
 
@@ -78,13 +81,12 @@ DAS_QUERY = "/dna?segment="
 DAS_SEPARATOR = ","
 
 
-# genomic coordinates template:
-# <genome build>:<chromosome><tx. start site>:<tx. end site>:<strand>
-BUILD   = 0
-CHROM   = 1
-TXSTART = 2
-TXEND   = 3
-STRAND  = 4
+# genomic coordinates attributes of a RefSeq identifier
+GENOME_BUILD = "genome build"
+CHROMOSOME   = "chromosome"
+TX_START = "transcription start position"
+TX_END   = "transcription end position"
+STRAND   = "strand"
 
 
 # logger
@@ -93,20 +95,27 @@ logger = logging.getLogger("microrna.org")
 
 
 #
-# return the genomic coordinates of the provided refSeq identifier using the
-# UCSC genome browser
+# query UCSC via MySQL interface to retrieve the genomic location of the
+# provided RefSeq identifier given its genome build as reference. Return the
+# result in a Bio.SeqRecord annotated with:
+# - chromosome location
+# - transcription start site (1-based counting)
+# - transcription end site
+# - strand
 #
 def genomic_coordinates(refseq_id, genome):
     """
-    Queries UCSC's Table Browser (genome.ucsc.edu/goldenpath/help/mysql.html),
-    and returns the genomic coordinates of the provided refSeq ID.
+    Returns an annotated Bio.SeqRecord containing the provided RefSeq
+    identifier and genome build, chromosome, transcription start/end positions
+    (1-based counting) and strand.
+    Relies on UCSC MySQL interface (genome.ucsc.edu/goldenpath/help/mysql.html.
     """
 
     query = "select g.chrom, g.txStart, g.txEnd, g.strand \
         from refGene g, knownToRefSeq r where g.name = '%s' \
         AND r.value = g.name;"%(refseq_id)
 
-    result = ""
+    result = None
 
     db = pymysql.connect(host=UCSC_HOST, port=UCSC_PORT,
         user=UCSC_USER, password=UCSC_PASS, database=genome)
@@ -116,12 +125,15 @@ def genomic_coordinates(refseq_id, genome):
     try:
         cursor.execute(query)
         data = cursor.fetchone()
-        chrom   = data[0]
-        txStart = data[1]
-        txEnd   = data[2]
-        strand  = data[3]
 
-        result += SEPARATOR.join(genome, chrom, str(txStart), str(txEnd), strand)
+        result = Bio.SeqRecord(
+            seq="",
+            id=refseq_id,
+            annotations[GENOME_BUILD]=genome,
+            annotations[CHROMOSOME]=data[0],
+            annotations[TX_START]=(data[1] + 1), # (1-based counting)
+            annotations[TX_END]=data[2],
+            annotations[STRAND]=data[3])
 
     except:
         logger.error("Unable to fetch data from UCSC Table Browser")
@@ -131,25 +143,25 @@ def genomic_coordinates(refseq_id, genome):
     return result
 
 
+
 #
-# return the genomic sequence at the given genomic coordinates (e.g.
-# "hg19:chr20:32263282:32274191:-") using the UCSC DAS server
+# update the sequence of the given Bio.SeqRecord.
+# Use the UCSC DAS server (follows GenBank/EMBL 1-based counting).
 #
-def genomic_sequence(genomic_coordinates):
+def genomic_sequence(refseq_id_record):
     """
-    Queries UCSC's DAS server (genome.ucsc.edu/cgi-bin/das), and returns the
-    genomic sequence at the provided genomic coordinates (e.g.
-    "hg19:chr20:32263283:32274191:-").
+    Updates the provided Bio.SeqRecord object with its genomic sequence.
+    Relies on UCSC DAS server (http://genome.ucsc.edu/cgi-bin/das/), which
+    follows the GenBank/EMBL 1-based counting,
     """
 
     query = str(
-        DAS_HOST + genomic_coordinates[BUILD] +
-        DAS_QUERY + genomic_coordinates[CHROM] +
-        SEPARATOR + genomic_coordinates[TXSTART] +
-        DAS_SEPARATOR + genomic_coordinates[TXEND]
-    )
+        DAS_HOST + refseq_id_record.annotations[GENOME_BUILD] +
+        DAS_QUERY + refseq_id_record.annotations[CHROMOSOME] +
+        SEPARATOR + str(refseq_id_record.annotations[TX_START]) +
+        DAS_SEPARATOR + str(refseq_id_record.annotations[TX_END]))
 
-    result = ""
+    result = refseq_id_record
 
     try:
         response = requests.get(query)
@@ -169,10 +181,19 @@ def genomic_sequence(genomic_coordinates):
 
             # extract sequence from XML tree
             soup = BeautifulSoup(response.content, 'html.parser')
-            result += re.sub('\n', '', soup.dna.string)
+
+            # create a Bio.Seq object
+            sequence = Seq(
+                re.sub('\n', '', soup.dna.string),
+                IUPAC.unambiguous_dna)
+
+            # updated the provided Bio.SeqRecord object with the retrieved
+            # sequence
+            result.seq = sequence
+
         else:
-            logger.error("Unable to retrieve sequence at %s. DAS server returned Error code %s",
-                genomic_coordinates, str(response.status_code))
+            logger.error("Unable to retrieve sequence. DAS server returned Error code %s",
+                str(response.status_code))
 
     except:
         logger.error("Ubable to fetch data from UCSC DAS server")
