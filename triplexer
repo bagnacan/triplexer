@@ -214,13 +214,13 @@ def operation_provides_required_arguments(operation, cli_args):
 #
 # run the operation
 #
-def run(operation, options):
+def run(operation, cli_args):
     """
     Runs an operation.
     """
 
     logger.info("Operation \"%s\" started", operation)
-    launch[operation](cache, options)
+    launch[operation](cache, cli_args)
     logger.info("Operation \"%s\" completed", operation)
 
 
