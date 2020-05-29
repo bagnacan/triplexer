@@ -23,6 +23,11 @@ OPT_DB       = "db"
 OPT_DB_SHORT = str("-" + OPT_DB[:1])
 OPT_DB_EXT   = str("--" + OPT_DB)
 
+OPT_INIT_NS         = "bootstrap_ns"
+OPT_INIT_NS_SHORT   = str("-" + OPT_INIT_NS[:1])
+OPT_INIT_NS_EXT     = str("--" + OPT_INIT_NS)
+OPT_INIT_NS_REQUIRE = []
+
 OPT_READ         = "read"
 OPT_READ_SHORT   = str("-" + OPT_READ[:1])
 OPT_READ_EXT     = str("--" + OPT_READ)
@@ -61,6 +66,7 @@ OPT_TEST_EXT   = str("--" + OPT_TEST)
 
 # option dependencies
 OPTS_DEPENDENCIES = {
+    OPT_INIT_NS: OPT_INIT_NS_REQUIRE,
     OPT_READ: OPT_READ_REQUIRE,
     OPT_FILTER: OPT_FILTER_REQUIRE
 }

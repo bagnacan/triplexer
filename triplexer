@@ -20,8 +20,8 @@ MODULE = os.path.basename(sys.argv[0])
 parser = argparse.ArgumentParser(
     prog=MODULE,
     description="Predict and simulate putative RNA triplexes.",
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
-)
+    formatter_class=argparse.RawTextHelpFormatter)
+
 parser.add_argument(
     "-v",
     "--version",
@@ -55,6 +55,20 @@ parser.add_argument(
 
 # operation parser
 parser_op = parser.add_argument_group("operations")
+parser_op.add_argument(
+    OPT_INIT_NS_SHORT,
+    OPT_INIT_NS_EXT,
+    metavar="NAMESPACE",
+    default="1",
+    help=str("initialize the provided namespace. Available namespace codes:\n"
+        + "+------+--------------------------------+\n"
+        + "| code | namespace                      |\n"
+        + "+------+--------------------------------+\n"
+        + "|    1 | microrna.org:Aug.2010:hsa:hg19 |\n"
+        + "+------+--------------------------------+\n"
+        + "|    2 | microrna.org:Aug.2010:mmu:mm10 |\n"
+        + "+------+--------------------------------+")
+)
 parser_op.add_argument(
     OPT_READ_SHORT,
     OPT_READ_EXT,
@@ -185,7 +199,7 @@ def operation_provides_required_options(operation, options):
         x for x in required_options if options[x] is not None
     ]
 
-    # ceck whether the mandatory options are provided
+    # check whether the mandatory options are provided
     if set(provided_options) != set(required_options):
         logger.error("Missing required options for operation \"%s\".",
             operation)
@@ -247,6 +261,7 @@ if __name__ == "__main__":
 
     # operation precedence:
     operations = [
+        OPT_INIT_NS,
         OPT_READ,
         OPT_FILTER,
         OPT_PREDICT,
