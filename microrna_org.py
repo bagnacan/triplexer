@@ -201,6 +201,23 @@ def genomic_sequence(refseq_id_record):
     return result
 
 
+#
+# return the transcript sequence of the given Bio.SeqRecord between the
+# specified start and end positions (1-based counting)
+#
+def transcript_sequence_in_range(refseq_id_record, start, end):
+    """
+    Returns the transcript sequence of the provided Bio.SeqRecord that is found
+    between the given range (1-based counting).
+    """
+
+    gene_start = refseq_id_record.annotations[TX_START]
+
+    section = refseq_id_record.seq[(start - gene_start):((end - gene_start)+1)]
+
+    return section.transcribe()
+
+
 
 #
 # return the caching namespace
