@@ -55,20 +55,22 @@ parser.add_argument(
 
 # operation parser
 parser_op = parser.add_argument_group("operations")
+
 parser_op.add_argument(
     OPT_INIT_NS_SHORT,
     OPT_INIT_NS_EXT,
-    metavar="NAMESPACE",
+    metavar="NS",
     default="1",
-    help=str("initialize the provided namespace. Available namespace codes:\n"
-        + "+------+--------------------------------+\n"
-        + "| code | namespace                      |\n"
-        + "+------+--------------------------------+\n"
-        + "|    1 | microrna.org:Aug.2010:hsa:hg19 |\n"
-        + "+------+--------------------------------+\n"
-        + "|    2 | microrna.org:Aug.2010:mmu:mm10 |\n"
-        + "+------+--------------------------------+")
-)
+    help=str("initialize the cache by storing the putative\n"
+        + "triplexes of namespace %(metavar)s. Supported %(metavar)s are:\n"
+        + "+----+----------------------------------+\n"
+        + "| NS | database:version:organism:genome |\n"
+        + "+----+----------------------------------+\n"
+        + "|  1 | microrna.org:Aug.2010:hsa:hg19   |\n"
+        + "+----+----------------------------------+\n"
+        + "|  2 | microrna.org:Aug.2010:mmu:mm10   |\n"
+        + "+----+----------------------------------+"))
+
 parser_op.add_argument(
     OPT_READ_SHORT,
     OPT_READ_EXT,
@@ -186,22 +188,21 @@ def is_file(parser, f):
 
 
 #
-# check provided option satisfy dependencies
+# check provided arguments satisfy dependencies
 #
-def operation_provides_required_options(operation, options):
+def operation_provides_required_arguments(operation, cli_args):
     """
-    Checks whether the provided set of operation's options complies with the
-    operation's set of required options.
+    Checks whether the provided operation and CLI arguments are complete.
     """
-    required_options = OPTS_DEPENDENCIES[operation]
+    required_args = OPTS_DEPENDENCIES[operation]
 
-    provided_options = [
-        x for x in required_options if options[x] is not None
+    provided_args = [
+        x for x in required_args if cli_args[x] is not None
     ]
 
-    # check whether the mandatory options are provided
-    if set(provided_options) != set(required_options):
-        logger.error("Missing required options for operation \"%s\".",
+    # check whether the mandatory CLI arguments are provided
+    if set(provided_args) != set(required_args):
+        logger.error("Missing required command line arguments for operation \"%s\".",
             operation)
         return False
 
@@ -224,15 +225,6 @@ def run(operation, options):
 
 
 
-#
-# check if an operation is followed by its required options
-#
-def check_operation_options(operation, options):
-    """
-    Checks if an operation's mandatory options are provided.
-    """
-
-
 
 #
 # main
@@ -242,13 +234,13 @@ if __name__ == "__main__":
     # parse the command line invocation:
     args, non_args = parser.parse_known_args()
 
-    # no options arguments provided
+    # no CLI arguments
     # ==> print the help and exit
     if len(sys.argv) == 1:
         parser.print_help(file=sys.stderr)
         sys.exit(0)
 
-    # unrecognised arguments
+    # unrecognised CLI arguments
     # ==> print the help and exit
     if non_args:
         logger.error("Wrong command line invocation. Exiting")
@@ -256,35 +248,25 @@ if __name__ == "__main__":
         sys.exit(2)
 
 
-    options = dict(vars(args))
+    # collect CLI arguments
+    cli_args = dict(vars(args))
 
-
-    # operation precedence:
-    operations = [
-        OPT_INIT_NS,
-        OPT_READ,
-        OPT_FILTER,
-        OPT_PREDICT,
-        OPT_TEST
-    ]
-
-
-    # provided operation does not indicate mandatory options
+    # operantion's mandatory CLI arguments missing
     # ==> print help and exit
-    for operation in operations:
+    for op in OPS:
 
-        if (operation in options.keys()) and (not operation_provides_required_options(operation, options)):
-            logger.error("Operation \"%s\" is missing mandatory options. Exiting", operation)
+        if (op in cli_args.keys()) and (not operation_provides_required_arguments(op, cli_args)):
+            logger.error("Operation \"%s\" is missing mandatory CLI options. Exiting", op)
             parser.print_help(file=sys.stderr)
             sys.exit(2)
 
     # underlying redis cache not reachable
     # ==> exit
-    logger.info("Checking redis cache at %s", options[OPT_DB])
+    logger.info("Checking redis cache at %s", cli_args[OPT_DB])
     cache = redis.Redis(
         charset="utf-8", decode_responses=True,
-        host=options[OPT_DB].split(SEPARATOR)[0],
-        port=options[OPT_DB].split(SEPARATOR)[1],
+        host=cli_args[OPT_DB].split(SEPARATOR)[0],
+        port=cli_args[OPT_DB].split(SEPARATOR)[1],
         db=0)
     try:
         cache.ping()
@@ -293,8 +275,8 @@ if __name__ == "__main__":
         sys.exit(2)
 
 
-    # launch all the provided operations
-    for operation in operations:
-        if operation in options.keys():
-            run(operation, options)
+    # launch all operations given on the CLI
+    for op in OPS:
+        if op in cli_args.keys():
+            run(op, cli_args)
 

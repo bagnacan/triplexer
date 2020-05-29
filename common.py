@@ -71,6 +71,15 @@ OPTS_DEPENDENCIES = {
     OPT_FILTER: OPT_FILTER_REQUIRE
 }
 
+# operations and their precedence
+OPS = {
+    OPT_INIT_NS,
+    OPT_READ,
+    OPT_FILTER,
+    OPT_PREDICT,
+    OPT_TEST
+}
+
 
 # Saetrom et al. 2007 (doi:10.1093/nar/gkm133) defined the following distance
 # binding range constraint for experimentally validated RNA triplexes
