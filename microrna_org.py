@@ -236,6 +236,10 @@ def get_caching_namespace(options):
     return namespace
 
 
+def init_ns(cache, options):
+    read(cache, options)
+    filtrate(cache, options)
+
 
 #
 # read the microrna.org target prediction file and cache all putative triplexes
@@ -392,7 +396,7 @@ def get_hash(line):
 # duplex (for each scanned target)
 # TODO: this function must be source-agnostic, i.e. comparisons should be made
 # regardless the data is from microrna.org, TargetScan, etc.
-def filter(cache, options):
+def filtrate(cache, options):
     """
     Retrieves each target and set of associated duplexes, and builds a list
     containing all possible comparisons among those duplexes whose seed-binding

@@ -59,17 +59,12 @@ parser_op = parser.add_argument_group("operations")
 parser_op.add_argument(
     OPT_INIT_NS_SHORT,
     OPT_INIT_NS_EXT,
-    metavar="NS",
-    default="1",
-    help=str("initialize the cache by storing the putative\n"
-        + "triplexes of namespace %(metavar)s. Supported %(metavar)s are:\n"
-        + "+----+----------------------------------+\n"
-        + "| NS | database:version:organism:genome |\n"
-        + "+----+----------------------------------+\n"
-        + "|  1 | microrna.org:Aug.2010:hsa:hg19   |\n"
-        + "+----+----------------------------------+\n"
-        + "|  2 | microrna.org:Aug.2010:mmu:mm10   |\n"
-        + "+----+----------------------------------+"))
+    action="store_true",
+    default=argparse.SUPPRESS,
+    help=str("initialize the cache with putative RNA triplexes\n"
+        + "(same as: " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
+        + ")")
+)
 
 parser_op.add_argument(
     OPT_READ_SHORT,
@@ -82,13 +77,13 @@ parser_op.add_argument(
     )
 )
 parser_op.add_argument(
-    OPT_FILTER_SHORT,
-    OPT_FILTER_EXT,
+    OPT_FILTRATE_SHORT,
+    OPT_FILTRATE_EXT,
     action="store_true",
     default=argparse.SUPPRESS,
     help=str(
         "filter entries not forming putative triplexes (requires: " +
-        ", ".join( str(x) for x in OPT_FILTER_REQUIRE_CLI) + ")"
+        ", ".join( str(x) for x in OPT_FILTRATE_REQUIRE_CLI) + ")"
     )
 )
 parser_op.add_argument(
@@ -116,13 +111,15 @@ parser_to.add_argument(
     default=argparse.SUPPRESS,
     help="set %(metavar)s as model organism"
 )
+supported_namespaces = get_supported_namespaces()
 parser_to.add_argument(
     OPT_NAMESPACE_SHORT,
     OPT_NAMESPACE_EXT,
     metavar="NS",
-    default=argparse.SUPPRESS,
-    help="set %(metavar)s as model organism namespace"
-)
+    default="1",
+    help=str("set %(metavar)s as model organism namespace\nsupported %(metavar)s:\n"
+        + supported_namespaces))
+
 parser_to.add_argument(
     OPT_GENOME_SHORT,
     OPT_GENOME_EXT,
@@ -164,8 +161,11 @@ logging.getLogger("").addHandler(console)
 
 # operation launcher
 launch = {
-    OPT_READ: microrna_org.read,
-    OPT_FILTER: microrna_org.filter
+    MICRORNA_ORG : {
+        OPT_INIT_NS: microrna_org.init_ns,
+        OPT_READ: microrna_org.read,
+        OPT_FILTRATE: microrna_org.filtrate
+    }
 }
 
 
@@ -219,10 +219,12 @@ def run(operation, cli_args):
     Runs an operation.
     """
 
-    logger.info("Operation \"%s\" started", operation)
-    launch[operation](cache, cli_args)
-    logger.info("Operation \"%s\" completed", operation)
+    ns_code = int(cli_args[OPT_NAMESPACE])
+    ns = NAMESPACES[ns_code][STRING].split(SEPARATOR)[0]
 
+    logger.info("Operation \"%s\" started", operation)
+    launch[ns][operation](cache, cli_args)
+    logger.info("Operation \"%s\" completed", operation)
 
 
 
