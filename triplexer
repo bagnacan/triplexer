@@ -11,6 +11,7 @@ import os
 import redis
 import sys
 from common import *
+from pathlib import Path
 
 
 MODULE = os.path.basename(sys.argv[0])
@@ -121,7 +122,7 @@ logger = logging.getLogger(MODULE)
 
 
 # file logger
-LOGFILE = str("/tmp/" + MODULE + ".log")
+LOGFILE = FILE_PATH.joinpath(str(MODULE + ".log"))
 logging.basicConfig(
     level = logging.DEBUG,
     format = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
