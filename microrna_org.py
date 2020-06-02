@@ -221,25 +221,10 @@ def transcript_sequence_in_range(refseq_id_record, start, end):
 
 
 
-#
-# return the caching namespace
-#
-def get_caching_namespace(options):
-    """
-    Returns the caching namespace.
-    """
-
-    namespace = str(
-        options[OPT_NAMESPACE] + SEPARATOR +
-        options[OPT_ORGANISM] + SEPARATOR +
-        options[OPT_GENOME]
-    )
-    return namespace
-
-
 def init_ns(cache, options):
     read(cache, options)
     filtrate(cache, options)
+
 
 
 #
