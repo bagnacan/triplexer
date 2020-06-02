@@ -103,38 +103,38 @@ parser_op.add_argument(
 
 
 # organism data parser
-parser_to = parser.add_argument_group("target organism")
-parser_to.add_argument(
-    OPT_ORGANISM_SHORT,
-    OPT_ORGANISM_EXT,
-    metavar="ORG",
-    default=argparse.SUPPRESS,
-    help="set %(metavar)s as model organism"
-)
+parser_ns = parser.add_argument_group("namespace")
+#parser_to.add_argument(
+#    OPT_ORGANISM_SHORT,
+#    OPT_ORGANISM_EXT,
+#    metavar="ORG",
+#    default=argparse.SUPPRESS,
+#    help="set %(metavar)s as model organism"
+#)
 supported_namespaces = get_supported_namespaces()
-parser_to.add_argument(
+parser_ns.add_argument(
     OPT_NAMESPACE_SHORT,
     OPT_NAMESPACE_EXT,
     metavar="NS",
-    default="1",
+    default="0",
     help=str("set %(metavar)s as model organism namespace\nsupported %(metavar)s:\n"
         + supported_namespaces))
 
-parser_to.add_argument(
-    OPT_GENOME_SHORT,
-    OPT_GENOME_EXT,
-    metavar="GEN",
-    default=argparse.SUPPRESS,
-    help="set %(metavar)s as model organism genome release"
-)
-parser_to.add_argument(
-    OPT_INPUT_SHORT,
-    OPT_INPUT_EXT,
-    metavar="INPUT",
-    type=(lambda x: is_file(parser, x)),
-    default=argparse.SUPPRESS,
-    help="set %(metavar)s as model organism input dataset"
-)
+#parser_to.add_argument(
+#    OPT_GENOME_SHORT,
+#    OPT_GENOME_EXT,
+#    metavar="GEN",
+#    default=argparse.SUPPRESS,
+#    help="set %(metavar)s as model organism genome release"
+#)
+#parser_to.add_argument(
+#    OPT_INPUT_SHORT,
+#    OPT_INPUT_EXT,
+#    metavar="INPUT",
+#    type=(lambda x: is_file(parser, x)),
+#    default=argparse.SUPPRESS,
+#    help="set %(metavar)s as model organism input dataset"
+#)
 
 
 # logger
