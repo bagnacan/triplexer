@@ -9,6 +9,7 @@ VERSION = "0.1"
 
 SEPARATOR = ":"
 FILE_PATH = Path("/tmp")
+TEST_PATH = Path("data")
 
 STRING = "string"
 SOURCE = "source"
@@ -24,6 +25,10 @@ SOURCE = "source"
 #
 MICRORNA_ORG = "microrna.org"
 NAMESPACES = {
+    0: {
+        STRING: str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
+        SOURCE: "data/microrna.org__aug.2010__hsa__hg19.test"
+    },
     1: {
         STRING: str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
         SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__hsa__hg19.tsv"

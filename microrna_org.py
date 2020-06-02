@@ -254,35 +254,49 @@ def read(cache, options):
     count_lines    = 0
     count_duplexes = 0
 
+    in_file = None
+
+
     # download the input file that is relative to the current namespace.
     # However, avoid downloading more than once
 
     ns_source = NAMESPACES[int(options[OPT_NAMESPACE])][SOURCE]
-    ns_file   = FILE_PATH.joinpath(ns_source.split('/')[-1])
 
-    # file is not there
-    # ==> download it
-    if not ns_file.is_file():
-
-        logger.info("Downloading target prediction file from " + ns_source)
-        response = requests.get(ns_source)
-        if response.status_code == 200:
-            with open(ns_file, 'wb') as dst:
-                dst.write(response.content)
-        else:
-            logger.error("Error retrieving target prediction file. Server returned "
-                + str(response.status_code))
-            sys.exit(1)
-
-    # file is there
+    # the requested file is within the known test data path
     # ==> use it
+    if TEST_PATH in Path(ns_source).parents:
+
+        logger.info("Using \"test data\" target prediction file " + ns_source)
+        in_file = Path(ns_source)
+
+    # the requested file is not within the known test data path
+    # ==> download it, or use its local copy
     else:
 
-        logger.info("Using cached target prediction file " + ns_file.name)
+        ns_file = FILE_PATH.joinpath(ns_source.split('/')[-1])
 
+        # file is not there
+        # ==> download it
+        if not ns_file.is_file():
 
-    # input file
-    in_file = ns_file
+            logger.info("Downloading target prediction file from " + ns_source)
+            response = requests.get(ns_source)
+            if response.status_code == 200:
+                with open(ns_file, 'wb') as dst:
+                    dst.write(response.content)
+            else:
+                logger.error("Error retrieving target prediction file. Server returned "
+                    + str(response.status_code))
+                sys.exit(1)
+
+        # file is there
+        # ==> use it
+        else:
+
+            logger.info("Using cached target prediction file " + ns_file.name)
+
+        in_file = ns_file
+
 
     # input namespace
     namespace = NAMESPACES[int(options[OPT_NAMESPACE])][STRING]
@@ -459,7 +473,8 @@ def generate_allowed_comparisons(cache, options, core):
     """
 
     # caching namespace
-    namespace = get_caching_namespace(options)
+    #namespace = get_caching_namespace(options)
+    namespace = NAMESPACES[int(options[OPT_NAMESPACE])][STRING]
 
     # per-worker summary statistics
     statistics_targets = 0
