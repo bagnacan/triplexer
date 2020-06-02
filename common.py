@@ -2,11 +2,13 @@
 # module for the common values
 #
 
+from pathlib import Path
 
 
 VERSION = "0.1"
 
 SEPARATOR = ":"
+FILE_PATH = Path("/tmp")
 
 STRING = "string"
 SOURCE = "source"

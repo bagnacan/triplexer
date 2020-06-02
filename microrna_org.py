@@ -13,6 +13,7 @@ import sys
 from bs4 import BeautifulSoup
 from common import *
 from multiprocessing import Process
+from pathlib import Path
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
@@ -246,18 +247,45 @@ def init_ns(cache, options):
 #
 def read(cache, options):
     """
-    Reads the supplied microrna.org target prediction file, and caches all
-    stored duplexes within it.
+    Reads the microrna.org target prediction file, and caches all duplexes
+    within it.
     """
 
     count_lines    = 0
     count_duplexes = 0
 
-    # in file
-    in_file = options[OPT_INPUT]
+    # download the input file that is relative to the current namespace.
+    # However, avoid downloading more than once
 
-    # namespace
-    namespace = get_caching_namespace(options)
+    ns_source = NAMESPACES[int(options[OPT_NAMESPACE])][SOURCE]
+    ns_file   = FILE_PATH.joinpath(ns_source.split('/')[-1])
+
+    # file is not there
+    # ==> download it
+    if not ns_file.is_file():
+
+        logger.info("Downloading target prediction file from " + ns_source)
+        response = requests.get(ns_source)
+        if response.status_code == 200:
+            with open(ns_file, 'wb') as dst:
+                dst.write(response.content)
+        else:
+            logger.error("Error retrieving target prediction file. Server returned "
+                + str(response.status_code))
+            sys.exit(1)
+
+    # file is there
+    # ==> use it
+    else:
+
+        logger.info("Using cached target prediction file " + ns_file.name)
+
+
+    # input file
+    in_file = ns_file
+
+    # input namespace
+    namespace = NAMESPACES[int(options[OPT_NAMESPACE])][STRING]
 
     logger.info("  Reading putative triplexes from microrna.org file \"%s\" ...", in_file)
     logger.info("  Namespace \"%s\"", namespace)
