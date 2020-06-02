@@ -75,18 +75,18 @@ def get_supported_namespaces():
 
 
 # options
-OPT_ORGANISM       = "org"
-OPT_ORGANISM_SHORT = str("-" + OPT_ORGANISM[:1])
-OPT_ORGANISM_EXT   = str("--" + OPT_ORGANISM)
+#OPT_ORGANISM       = "org"
+#OPT_ORGANISM_SHORT = str("-" + OPT_ORGANISM[:1])
+#OPT_ORGANISM_EXT   = str("--" + OPT_ORGANISM)
 OPT_NAMESPACE       = "ns"
 OPT_NAMESPACE_SHORT = str("-" + OPT_NAMESPACE[:1])
 OPT_NAMESPACE_EXT   = str("--" + OPT_NAMESPACE)
-OPT_GENOME       = "genome"
-OPT_GENOME_SHORT = str("-" + OPT_GENOME[:1])
-OPT_GENOME_EXT   = str("--" + OPT_GENOME)
-OPT_INPUT       = "input"
-OPT_INPUT_SHORT = str("-" + OPT_INPUT[:1])
-OPT_INPUT_EXT   = str("--" + OPT_INPUT)
+#OPT_GENOME       = "genome"
+#OPT_GENOME_SHORT = str("-" + OPT_GENOME[:1])
+#OPT_GENOME_EXT   = str("--" + OPT_GENOME)
+#OPT_INPUT       = "input"
+#OPT_INPUT_SHORT = str("-" + OPT_INPUT[:1])
+#OPT_INPUT_EXT   = str("--" + OPT_INPUT)
 OPT_CORES       = "exe"
 OPT_CORES_SHORT = str("-" + OPT_CORES[1:2])
 OPT_CORES_EXT   = str("--" + OPT_CORES[:3])
@@ -104,16 +104,16 @@ OPT_READ         = "read"
 OPT_READ_SHORT   = str("-" + OPT_READ[:1])
 OPT_READ_EXT     = str("--" + OPT_READ)
 OPT_READ_REQUIRE = [
-    OPT_ORGANISM,
-    OPT_NAMESPACE,
-    OPT_GENOME,
-    OPT_INPUT
+    #OPT_ORGANISM,
+    #OPT_NAMESPACE,
+    #OPT_GENOME,
+    #OPT_INPUT
 ]
 OPT_READ_REQUIRE_CLI = [
-    OPT_ORGANISM_SHORT,
-    OPT_NAMESPACE_SHORT,
-    OPT_GENOME_SHORT,
-    OPT_INPUT_SHORT
+    #OPT_ORGANISM_SHORT,
+    #OPT_NAMESPACE_SHORT,
+    #OPT_GENOME_SHORT,
+    #OPT_INPUT_SHORT
 ]
 
 # filtrate
@@ -121,14 +121,14 @@ OPT_FILTRATE         = "filtrate"
 OPT_FILTRATE_SHORT   = str("-" + OPT_FILTRATE[:1])
 OPT_FILTRATE_EXT     = str("--" + OPT_FILTRATE)
 OPT_FILTRATE_REQUIRE = [
-    OPT_ORGANISM,
-    OPT_NAMESPACE,
-    OPT_GENOME
+    #OPT_ORGANISM,
+    #OPT_NAMESPACE,
+    #OPT_GENOME
 ]
 OPT_FILTRATE_REQUIRE_CLI = [
-    OPT_ORGANISM_SHORT,
-    OPT_NAMESPACE_SHORT,
-    OPT_GENOME_SHORT
+    #OPT_ORGANISM_SHORT,
+    #OPT_NAMESPACE_SHORT,
+    #OPT_GENOME_SHORT
 ]
 
 # init namespaces
