@@ -473,7 +473,6 @@ def generate_allowed_comparisons(cache, options, core):
     """
 
     # caching namespace
-    #namespace = get_caching_namespace(options)
     namespace = NAMESPACES[int(options[OPT_NAMESPACE])][STRING]
 
     # per-worker summary statistics
