@@ -17,6 +17,7 @@ MODULE = os.path.basename(sys.argv[0])
 
 
 # parser
+#
 parser = argparse.ArgumentParser(
     prog=MODULE,
     description="Predict and simulate putative RNA triplexes.",
@@ -54,8 +55,8 @@ parser.add_argument(
 
 
 # operation parser
+#
 parser_op = parser.add_argument_group("operations")
-
 parser_op.add_argument(
     OPT_INIT_NS_SHORT,
     OPT_INIT_NS_EXT,
@@ -65,7 +66,6 @@ parser_op.add_argument(
         + "(same as: " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
         + ")")
 )
-
 parser_op.add_argument(
     OPT_READ_SHORT,
     OPT_READ_EXT,
@@ -102,16 +102,10 @@ parser_op.add_argument(
 )
 
 
-# organism data parser
+# namespace parser
+#
+supported_namespaces = get_supported_namespaces() # supported namespaces
 parser_ns = parser.add_argument_group("namespace")
-#parser_to.add_argument(
-#    OPT_ORGANISM_SHORT,
-#    OPT_ORGANISM_EXT,
-#    metavar="ORG",
-#    default=argparse.SUPPRESS,
-#    help="set %(metavar)s as model organism"
-#)
-supported_namespaces = get_supported_namespaces()
 parser_ns.add_argument(
     OPT_NAMESPACE_SHORT,
     OPT_NAMESPACE_EXT,
@@ -120,21 +114,6 @@ parser_ns.add_argument(
     help=str("set %(metavar)s as model organism namespace\nsupported %(metavar)s:\n"
         + supported_namespaces))
 
-#parser_to.add_argument(
-#    OPT_GENOME_SHORT,
-#    OPT_GENOME_EXT,
-#    metavar="GEN",
-#    default=argparse.SUPPRESS,
-#    help="set %(metavar)s as model organism genome release"
-#)
-#parser_to.add_argument(
-#    OPT_INPUT_SHORT,
-#    OPT_INPUT_EXT,
-#    metavar="INPUT",
-#    type=(lambda x: is_file(parser, x)),
-#    default=argparse.SUPPRESS,
-#    help="set %(metavar)s as model organism input dataset"
-#)
 
 
 # logger
