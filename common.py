@@ -66,7 +66,7 @@ def get_supported_namespaces():
 
     for k, v in NAMESPACES.items():
         label, num = v
-        supported_namespaces += "| {:<1}\t| {:<32} |\n".format(k, v[STRING])
+        supported_namespaces += "|  {:<1}\t| {:<32} |\n".format(k, v[STRING])
 
     supported_namespaces += line_divider
 
