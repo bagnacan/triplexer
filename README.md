@@ -43,34 +43,38 @@ You can now launch the Triplexer pipeline. Try it with no arguments to overview
 its command line options:
 ```
 $ triplexer
-usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-r] [-f] [-p] [-t]
-                 [-o ORG] [-n NS] [-g GEN] [-i INPUT]
+usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-i] [-r] [-f] [-p] [-t] [-n NS]
 
 Predict and simulate putative RNA triplexes.
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         print the version and exit
-  -c CONF, --conf CONF  set CONF as configuration file (default: conf.yaml)
+  -c CONF, --conf CONF  set CONF as configuration file
   -x CORES, --exe CORES
-                        set CORES as number of parallel processes (default: 2)
-  -d DB, --db DB        set DB as intermediate results database (default:
-                        redis:6379)
+                        set CORES as number of parallel processes
+  -d DB, --db DB        set DB as intermediate results database
 
-operations:
-  -r, --read            read the provided dataset in memory (requires: -o, -n,
-                        -g, -i)
-  -f, --filter          filter entries not forming putative triplexes
-                        (requires: -o, -n, -g)
+operations (require -n):
+  -i, --init_ns         initialize the cache with putative RNA triplexes
+                        (same as -r -f)
+  -r, --read            read the provided dataset in memory
+  -f, --filtrate        filter entries not forming putative triplexes
   -p, --predict         predict putative triplexes
   -t, --test            test stability of predicted triplexes
 
-target organism:
-  -o ORG, --org ORG     set ORG as model organism
+namespace:
   -n NS, --ns NS        set NS as model organism namespace
-  -g GEN, --genome GEN  set GEN as model organism genome release
-  -i INPUT, --input INPUT
-                        set INPUT as model organism input dataset
+                        supported NS (default "test"):
+                        +-------+----------------------------------+
+                        |  NS   | database:version:organism:genome |
+                        +-------+----------------------------------+
+                        |  test | microrna.org:aug.2010:hsa:hg19   |
+                        |  1    | microrna.org:aug.2010:hsa:hg19   |
+                        |  2    | microrna.org:aug.2010:mmu:mm9    |
+                        |  3    | microrna.org:aug.2010:rno:rn4    |
+                        |  4    | microrna.org:aug.2010:dme:dm3    |
+                        +-------+----------------------------------+
 ```
 
 The Triplexer command line interface defines three operations, which allow for
@@ -132,7 +136,7 @@ And so on.
 **Example**: Create a cache of microrna.org's Human hg19 [target site predictions](http://www.microrna.org/microrna/getDownloads.do)
 to find putative RNA triplexes:
 ```
-triplexer -r -o hsa -n microrna_org -g hg19 -i /data/human_predictions_S_C_aug2010.txt
+triplexer -r
 ```
 
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
@@ -165,6 +169,6 @@ for each target in the set of targets:
 **Example**: Filter the cached duplexes to retain only those whose miRNA bind a
 common target within the allowed binding distance range:
 ```
-triplexer -f -o hsa -n microrna_org -g hg19
+triplexer -f
 ```
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
