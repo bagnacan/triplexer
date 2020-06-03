@@ -57,7 +57,8 @@ parser.add_argument(
 
 # operation parser
 #
-parser_op = parser.add_argument_group("operations")
+parser_op = parser.add_argument_group("operations (require "
+    + OPT_NAMESPACE_SHORT + ")")
 parser_op.add_argument(
     OPT_INIT_NS_SHORT,
     OPT_INIT_NS_EXT,
@@ -72,20 +73,14 @@ parser_op.add_argument(
     OPT_READ_EXT,
     action="store_true",
     default=argparse.SUPPRESS,
-    help=str(
-        "read the provided dataset in memory (requires: " +
-        ", ".join( str(x) for x in OPT_READ_REQUIRE_CLI) + ")"
-    )
+    help=str("read the provided dataset in memory")
 )
 parser_op.add_argument(
     OPT_FILTRATE_SHORT,
     OPT_FILTRATE_EXT,
     action="store_true",
     default=argparse.SUPPRESS,
-    help=str(
-        "filter entries not forming putative triplexes (requires: " +
-        ", ".join( str(x) for x in OPT_FILTRATE_REQUIRE_CLI) + ")"
-    )
+    help=str("filter entries not forming putative triplexes")
 )
 parser_op.add_argument(
     OPT_PREDICT_SHORT,
@@ -168,30 +163,6 @@ def is_file(parser, f):
 
 
 #
-# check provided arguments satisfy dependencies
-#
-def operation_provides_required_arguments(operation, cli_args):
-    """
-    Checks whether the provided operation and CLI arguments are complete.
-    """
-    required_args = OPTS_DEPENDENCIES[operation]
-
-    provided_args = [
-        x for x in required_args if cli_args[x] is not None
-    ]
-
-    # check whether the mandatory CLI arguments are provided
-    if set(provided_args) != set(required_args):
-        logger.error("Missing required command line arguments for operation \"%s\".",
-            operation)
-        return False
-
-    else:
-        return True
-
-
-
-#
 # run the operation
 #
 def run(operation, cli_args):
@@ -233,14 +204,6 @@ if __name__ == "__main__":
     # collect CLI arguments
     cli_args = dict(vars(args))
 
-    # operantion's mandatory CLI arguments missing
-    # ==> print help and exit
-    for op in OPS:
-
-        if (op in cli_args.keys()) and (not operation_provides_required_arguments(op, cli_args)):
-            logger.error("Operation \"%s\" is missing mandatory CLI options. Exiting", op)
-            parser.print_help(file=sys.stderr)
-            sys.exit(2)
 
     # underlying redis cache not reachable
     # ==> exit
