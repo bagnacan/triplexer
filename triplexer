@@ -65,7 +65,7 @@ parser_op.add_argument(
     action="store_true",
     default=argparse.SUPPRESS,
     help=str("initialize the cache with putative RNA triplexes\n"
-        + "(same as: " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
+        + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
         + ")")
 )
 parser_op.add_argument(
@@ -106,8 +106,9 @@ parser_ns.add_argument(
     OPT_NAMESPACE_SHORT,
     OPT_NAMESPACE_EXT,
     metavar="NS",
-    default="0",
-    help=str("set %(metavar)s as model organism namespace\nsupported %(metavar)s:\n"
+    default="test",
+    help=str("set %(metavar)s as model organism namespace\n"
+        + "supported %(metavar)s (default \"%(default)s\"):\n"
         + supported_namespaces))
 
 
@@ -170,7 +171,7 @@ def run(operation, cli_args):
     Runs an operation.
     """
 
-    ns_code = int(cli_args[OPT_NAMESPACE])
+    ns_code = cli_args[OPT_NAMESPACE]
     ns = NAMESPACES[ns_code][STRING].split(SEPARATOR)[0]
 
     logger.info("Operation \"%s\" started", operation)

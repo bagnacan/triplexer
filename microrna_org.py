@@ -245,7 +245,7 @@ def read(cache, options):
     # download the input file that is relative to the current namespace.
     # However, avoid downloading more than once
 
-    ns_source = NAMESPACES[int(options[OPT_NAMESPACE])][SOURCE]
+    ns_source = NAMESPACES[options[OPT_NAMESPACE]][SOURCE]
 
     # the requested file is within the known test data path
     # ==> use it
@@ -284,7 +284,7 @@ def read(cache, options):
 
 
     # input namespace
-    namespace = NAMESPACES[int(options[OPT_NAMESPACE])][STRING]
+    namespace = NAMESPACES[options[OPT_NAMESPACE]][STRING]
 
     logger.info("  Reading putative triplexes from microrna.org file \"%s\" ...", in_file)
     logger.info("  Namespace \"%s\"", namespace)
@@ -458,7 +458,7 @@ def generate_allowed_comparisons(cache, options, core):
     """
 
     # caching namespace
-    namespace = NAMESPACES[int(options[OPT_NAMESPACE])][STRING]
+    namespace = NAMESPACES[options[OPT_NAMESPACE]][STRING]
 
     # per-worker summary statistics
     statistics_targets = 0
