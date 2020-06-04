@@ -5,7 +5,6 @@
 from pathlib import Path
 
 
-TRIPLEXER = "triplexer"
 VERSION = "0.1"
 
 SEPARATOR = ":"
