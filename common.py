@@ -9,6 +9,7 @@ TRIPLEXER = "triplexer"
 VERSION = "0.1"
 
 SEPARATOR = ":"
+FILE_EXT_LOG = ".log"
 FILE_PATH = Path("/tmp")
 TEST_PATH = Path("data")
 

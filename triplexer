@@ -19,7 +19,7 @@ logger = logging.getLogger(TRIPLEXER)
 
 
 # file logger
-LOGFILE = FILE_PATH.joinpath(str(TRIPLEXER + ".log"))
+LOGFILE = FILE_PATH.joinpath(str(TRIPLEXER + FILE_EXT_LOG))
 logging.basicConfig(
     level = logging.DEBUG,
     format = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
@@ -51,7 +51,7 @@ launch = {
 #
 def run(operation, cli_args):
     """
-    Runs a triplexer operation.
+    Runs an operation.
     """
 
     ns_code = cli_args[OPT_NAMESPACE]
