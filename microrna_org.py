@@ -11,6 +11,7 @@ import redis
 import requests
 import sys
 from bs4 import BeautifulSoup
+from cli import *
 from common import *
 from multiprocessing import Process
 from pathlib import Path
