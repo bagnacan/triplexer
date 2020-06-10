@@ -85,8 +85,8 @@ the creation of the multi-organism backend database of the [TriplexRNA](https://
 
 ### Operation read
 
-The *read* operation parses the provided RNA duplexes, and creates a cache that
-is used to find putative RNA triplexes.  
+The *read* operation parses the provided RNA duplexes, and creates a cache to
+store their attributes (later used to find putative RNA triplexes).  
 
 In a microrna.org file, each line represent an RNA *duplex*. These are
 carachterized by:
@@ -98,44 +98,43 @@ Multiple lines can refer to the same target gene. For this reason, the read
 operation reads the provided input only once, and organizes the parsed duplex
 information as follows:
 - *targets*  
-A set that stores the gene target identifiers
+A set that stores gene target identifiers
 - *target*  
-A value that represents a target identifier
+A string that represents a gene target identifier
 - *duplex*  
-A hash that stores the duplex details found at some line
+A hash that stores the attributes of a duplex
 - *target_duplexes*  
-A set that stores the duplexes targeting some target
+A set that stores all duplexes associated to some gene target
 
-So, for example, the set *targets* that registers all *target* identifiers will
-look like:
+So, for example, the set *targets*, which registers all *target* identifiers,
+will look like:
 ```
-microrna_org:aug2010:hsa:hg19:targets
-|- microrna_org:aug2010:hsa:hg19:target:uc001zmx.1
-|- microrna_org:aug2010:hsa:hg19:target:uc001ulh.2
-|- microrna_org:aug2010:hsa:hg19:target:uc010zln.1
+microrna_org:aug.2010:hsa:hg19:targets
+|- microrna_org:aug.2010:hsa:hg19:target:uc001zmx.1
+|- microrna_org:aug.2010:hsa:hg19:target:uc001ulh.2
+|- microrna_org:aug.2010:hsa:hg19:target:uc010zln.1
 |- ...
 ```
 
-The set *target_duplex* of target ``uc001zmx.1`` that stores all duplex entries
-targeting ``uc001zmx.1`` will look like:
+The set *target_duplexes* of target ``uc001zmx.1``, which stores all duplexes
+associated to target ``uc001zmx.1``, will look like:
 ```
-microrna_org:aug2010:hsa:hg19:target:uc001zmx.1:duplexes
-|- microrna_org:aug2010:hsa:hg19:duplex:line524
+microrna_org:aug.2010:hsa:hg19:target:uc001zmx.1:duplexes
+|- microrna_org:aug.2010:hsa:hg19:duplex:line524
 |- ...
 ```
-While the set *target_duplex* of target ``uc001ulh.2`` that stores all duplex
-targeting ``uc001ulh.2`` will look like:
+While the set *target_duplexes* of target ``uc001ulh.2``, which stores all
+duplexes associated to target ``uc001ulh.2``, will look like:
 ```
-microrna_org:aug2010:hsa:hg19:target:uc001ulh.2:duplexes
-|- microrna_org:aug2010:hsa:hg19:duplex:line277
+microrna_org:aug.2010:hsa:hg19:target:uc001ulh.2:duplexes
+|- microrna_org:aug.2010:hsa:hg19:duplex:line277
 |- ...
 ```
 
 And so on.  
 
-**Example**: Create a cache of microrna.org's Human hg19 [target site
-predictions](http://www.microrna.org/microrna/getDownloads.do) to find putative
-RNA triplexes:
+**Example**: Read (and cache) microrna.org's Human hg19 [target site prediction](http://www.microrna.org/microrna/getDownloads.do)
+duplexes:
 ```
 triplexer -r
 ```
