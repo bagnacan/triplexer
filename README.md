@@ -143,21 +143,21 @@ triplexer -r
 
 
 
-### Operation filter
+### Operation filtrate
 
 Experimental findings suggest that RNA triplexes form when two cooperating
-miRNAs bind a common target with a seed site distance between 13 and 35
+miRNAs bind a common target gene with a seed site distance between 13 and 35
 nucleotides [(Saetrom et al. 2007)](https://doi.org/10.1093/nar/gkm133).
-This means that among those cached duplexes that share a common target, there
-might also some that do not comply with the aforementioned seed site distance
+This means that duplex pairs that share a common target must be tested for
+complying with the aforementioned seed site distance.
 constraint.  
-The *filter* operation takes all duplexes targeting some gene, creates an index
-of all possible duplex pairs, and discards those that do not comply with the
-constraint.  
+The *filtrate* operation relies on the *read* operation (see above). It takes
+all the cached duplexes that share a common target gene, and records those
+pairs that comply with the seed site distance constraint.  
 
-This operation relies on the cache created by the read operation (see above).  
 With reference to the names defined in the [operation read](#operation-read)
-section, the filter's behavior can be summarized by the following pseudo-code:
+section, this operation's behavior can be summarized by the following
+pseudo-code:
 ```
 for each target in the set of targets:
     for each duplex in the set of target_duplexes:
@@ -166,8 +166,8 @@ for each target in the set of targets:
             cache the duplex pair
 ```
 
-**Example**: Filter the cached duplexes to retain only those whose miRNA bind a
-common target within the allowed binding distance range:
+**Example**: Filtrate every possible duplex pair, and record those whose miRNA
+pairs bind a common target gene within the allowed binding distance range:
 ```
 triplexer -f
 ```
