@@ -96,31 +96,31 @@ logger = logging.getLogger("microrna.org")
 
 
 
-#
-# query UCSC via MySQL interface to retrieve the genomic location of the
-# provided RefSeq identifier given its genome build as reference. Return the
-# result in a Bio.SeqRecord annotated with:
+# query the UCSC via MySQL interface to retrieve the genomic location of the
+# provided Bio.SeqRecord, given its RefSeq ID and genome build annotation.
+# Return the updated record as result. Updates are found in its annotations:
 # - chromosome location
 # - transcription start site (1-based counting)
 # - transcription end site
 # - strand
 #
-def genomic_coordinates(refseq_id, genome):
+def genomic_coordinates(bio_seq, core):
     """
-    Returns an annotated Bio.SeqRecord containing the provided RefSeq
-    identifier and genome build, chromosome, transcription start/end positions
-    (1-based counting) and strand.
-    Relies on UCSC MySQL interface (genome.ucsc.edu/goldenpath/help/mysql.html.
+    Returns an updated Bio.SeqRecord containing the provided RefSeq identifier
+    and genome build, chromosome, transcription start/end positions (1-based
+    counting) and strand.
+    Relies on UCSC MySQL interface (genome.ucsc.edu/goldenpath/help/mysql.html).
     """
 
     query = "select g.chrom, g.txStart, g.txEnd, g.strand \
         from refGene g, knownToRefSeq r where g.name = '%s' \
-        AND r.value = g.name;"%(refseq_id)
+        AND r.value = g.name;"%(bio_seq.id)
 
     result = None
 
     db = pymysql.connect(host=UCSC_HOST, port=UCSC_PORT,
-        user=UCSC_USER, password=UCSC_PASS, database=genome)
+        user=UCSC_USER, password=UCSC_PASS,
+        database=bio_seq.annotations[GENOME_BUILD])
 
     cursor = db.cursor()
 
@@ -129,17 +129,20 @@ def genomic_coordinates(refseq_id, genome):
         data = cursor.fetchone()
 
         # initialize the Bio.SeqRecord object
-        result = Bio.SeqRecord(seq="", id=refseq_id)
+        result = bio_seq
 
-        # annotate the Bio.SeqRecord object
-        result.annotations[GENOME_BUILD] = genome
+        # update the annotations of the given Bio.SeqRecord object
         result.annotations[CHROMOSOME] = data[0]
         result.annotations[TX_START] = (data[1] + 1) # (1-based counting)
         result.annotations[TX_END] = data[2]
         result.annotations[STRAND] = data[3]
 
+        logger.debug("  Worker %d:   Retrieved genomic location of target %s from UCSC",
+            core, bio_seq.id)
+
     except:
-        logger.error("Unable to fetch data from UCSC Table Browser")
+        logger.debug("  Worker %d:   Unable to fetch the genomic location of target %s from UCSC",
+            core, bio_seq.id)
 
     db.close()
 
@@ -147,11 +150,10 @@ def genomic_coordinates(refseq_id, genome):
 
 
 
-#
 # update the sequence of the given Bio.SeqRecord.
 # Use the UCSC DAS server (follows GenBank/EMBL 1-based counting).
 #
-def genomic_sequence(refseq_id_record):
+def genomic_sequence(bio_seq, core):
     """
     Updates the provided Bio.SeqRecord object with its genomic sequence.
     Relies on UCSC DAS server (http://genome.ucsc.edu/cgi-bin/das/), which
@@ -159,12 +161,12 @@ def genomic_sequence(refseq_id_record):
     """
 
     query = str(
-        DAS_HOST + refseq_id_record.annotations[GENOME_BUILD] +
-        DAS_QUERY + refseq_id_record.annotations[CHROMOSOME] +
-        SEPARATOR + str(refseq_id_record.annotations[TX_START]) +
-        DAS_SEPARATOR + str(refseq_id_record.annotations[TX_END]))
+        DAS_HOST + bio_seq.annotations[GENOME_BUILD] +
+        DAS_QUERY + bio_seq.annotations[CHROMOSOME] +
+        SEPARATOR + str(bio_seq.annotations[TX_START]) +
+        DAS_SEPARATOR + str(bio_seq.annotations[TX_END]))
 
-    result = refseq_id_record
+    result = None
 
     try:
         response = requests.get(query)
@@ -192,11 +194,16 @@ def genomic_sequence(refseq_id_record):
 
             # updated the provided Bio.SeqRecord object with the retrieved
             # sequence
-            result.seq = sequence
+            bio_seq.seq = sequence
+
+            logger.debug("  Worker %d:   Retrieved genomic sequence of target %s from DAS server",
+                core, bio_seq.id)
+
+            result = bio_seq
 
         else:
-            logger.error("Unable to retrieve sequence. DAS server returned Error code %s",
-                str(response.status_code))
+            logger.debug("  Worker %d:   Unable to fetch the genomic sequence of target %s. DAS server returned Error code %s",
+                core, bio_seq.id, str(response.content))
 
     except:
         logger.error("Ubable to fetch data from UCSC DAS server")
@@ -204,31 +211,141 @@ def genomic_sequence(refseq_id_record):
     return result
 
 
-#
 # return the transcript sequence of the given Bio.SeqRecord between the
 # specified start and end positions (1-based counting)
 #
-def transcript_sequence_in_range(refseq_id_record, start, end):
+def transcript_sequence_in_range(bio_seq, start, end):
     """
     Returns the transcript sequence of the provided Bio.SeqRecord that is found
     between the given range (1-based counting).
     """
 
-    gene_start = refseq_id_record.annotations[TX_START]
+    gene_start = bio_seq.annotations[TX_START]
 
-    section = refseq_id_record.seq[(start - gene_start):((end - gene_start)+1)]
+    section = bio_seq.seq[(start - gene_start):((end - gene_start)+1)]
 
     return section.transcribe()
 
 
+crawl_ucsc = {
+    0: genomic_coordinates,
+    1: genomic_sequence,
+}
 
+
+
+# initialize the microrna.org namespace by triggering the read and filtrate
+# operations, and crawl the UCSC to retrieve each target gene's transcript
+# sequence given its RefSeq identifier.
+#
 def init_ns(cache, options):
+    """
+    Initializes the microrna.org namespace by: 1) reading its predicted RNA
+    duplexes (operation read); 2) keep each duplex pair whose seed-binding
+    distance resides within the allowed nt. range (Saetrom et al. 2007)
+    (operation filtrate); 3) retrieving each target gene's transcript sequence
+    from the UCSC.
+    """
+
+    # operation read
     read(cache, options)
+
+    # operation filtrate
     filtrate(cache, options)
 
+    # crawl the UCSC to retrieve each target's genomic sequence (using their
+    # RefSeq IDs)
+
+    procs = [
+        Process(
+            target=retrieve_genomice_sequences,
+            args=(cache, options, x)
+        ) for x in range(int(options[OPT_CORES]))
+    ]
+    [px.start() for px in procs]
+    [px.join() for px in procs]
+    [px.close() for px in procs]
 
 
+
+# crawl UCSC to retrieve the genomic sequence of a cached target gene:
+# - fetch the next target gene
+# - create a Bio.SeqRecord object to store its RefSeq ID and genome build
+# - annotate the Bio.SeqRecord with the gene's genomice coordinates (UCSC)
+# - annotate the Bio.SeqRecord with the gene's genomice sequence (DAS)
 #
+def retrieve_genomice_sequences(cache, options, core):
+    """
+    Retrieves a target gene's genomic coordinates from the UCSC and its
+    corresponding genomic sequence from the DAS server.
+    """
+
+    namespace = NAMESPACES[options[OPT_NAMESPACE]][STRING]
+    genome    = NAMESPACES[options[OPT_NAMESPACE]][GENOME]
+
+    # per-worker summary statistics
+    statistics_target_genes = 0
+    statistics_target_genes_pass = 0
+    statistics_target_genes_fail = 0
+
+    # work until there are available targets :)
+    while True:
+
+        # cache locations
+        target_genes = str(namespace + ":target" + ":genes")
+        target_genes_pass = str(namespace + ":target" + ":genes" + ":pass")
+        target_genes_fail = str(namespace + ":target" + ":genes" + ":fail")
+
+        # retrieve the next target gene's RefSeq ID
+        target_gene = cache.spop(target_genes)
+
+        if not target_gene:
+            break
+
+        else:
+            statistics_target_genes += 1
+
+            # retrieve the target gene's genomice coordinates from the UCSC
+            logger.debug("  Worker %d: Retrieved target gene %s. Obtaining genomic coordinates from UCSC...",
+                core, target_gene)
+
+            # handle the target gene's attributes with a Bio.SeqRecord object
+            bio_seq = SeqRecord(seq="", id=target_gene)
+            bio_seq.annotations[GENOME_BUILD] = genome
+
+            # update the target gene's attributes with the information
+            # retrieved from the UCSC
+            for step in range(len(crawl_ucsc.keys())):
+
+                bio_seq = crawl_ucsc[step](bio_seq, core)
+
+            # a UCSC crawl operation fails
+            # ==> report error
+            if not bio_seq:
+                statistics_target_genes_fail += 1
+                cache.sadd(target_genes_fail, target_gene)
+                logger.error("  Worker %d:   Could not fetch genomic attributes. Target gene %s discarded",
+                    core, target_gene)
+
+            else:
+                statistics_target_genes_pass += 1
+                cache.sadd(target_genes_pass, target_gene)
+                logger.debug("  Worker %d:   Target gene %s kept",
+                    core, target_gene)
+
+#            transcript_seq = transcript_sequence_in_range(bio_seq,
+#                cache.hget(target, ALIGNMENT_GENE_START),
+#                cache.hget(target, ALIGNMENT_GENE_END))
+
+    logger.info(
+        "  Worker %d: Requested genomic sequences of %d target genes. Retrieved %d (%d failed)",
+        core, statistics_target_genes,
+        statistics_target_genes_pass,
+        statistics_target_genes_fail
+    )
+
+
+
 # read the microrna.org target prediction file and cache all putative triplexes
 #
 def read(cache, options):
@@ -378,7 +495,6 @@ def read(cache, options):
 
 
 
-#
 # return a redis hash representation of the current line
 #
 def get_hash(line):
@@ -416,7 +532,6 @@ def get_hash(line):
 
 
 
-#
 # filter the provided data set for allowed duplex-pair comparisons (putative
 # triplexes). To spot putative triplexes, each duplex carrying the same target
 # has to be compared for seed binding proximity (Saetrom et al. 2007).
@@ -434,18 +549,20 @@ def filtrate(cache, options):
 
     logger.info("  Finding allowed duplex-pair comparisons among each target's duplex ...")
 
-
     # generate all comparison jobs in parallel, assigning the same job to as
     # many processes as number of given cores
     procs = [
-        Process(target=generate_allowed_comparisons, args=(cache, options, x)) for x in range(int(options[OPT_CORES]))
+        Process(
+            target=generate_allowed_comparisons,
+            args=(cache, options, x)
+        ) for x in range(int(options[OPT_CORES]))
     ]
     [p.start() for p in procs]
     [p.join() for p in procs]
+    [p.close() for p in procs]
 
 
 
-#
 # generate the allowed duplex-pair comparison list
 # TODO: this function must be source-agnostic, i.e. comparisons should be made
 # regardless the data is from microrna.org, TargetScan, etc.
@@ -466,6 +583,7 @@ def generate_allowed_comparisons(cache, options, core):
     statistics_targets_with_duplex_pairs_within_range = 0
     statistics_duplex_pairs = 0
     statistics_duplex_pairs_binding_within_range = 0
+    statistics_genes   = 0
 
     # work until there are available targets :)
     while True:
@@ -549,7 +667,8 @@ def generate_allowed_comparisons(cache, options, core):
                 # Before proper statistical validation, a candidate triplex
                 # conserves this experimentally validated property.
                 # ==> Test whether the binding distance is within the allowed
-                # distance range, and if so, keep the duplex-pair comparison
+                #     distance range, and if so, keep the duplex-pair
+                #     comparison
                 if (SEED_MAX_DISTANCE >= binding) and (binding >= SEED_MIN_DISTANCE):
 
                     logger.debug(
@@ -575,6 +694,28 @@ def generate_allowed_comparisons(cache, options, core):
                     # duplex pairs
                     duplex_pairs_binding_within_range += 1
                     statistics_duplex_pairs_binding_within_range += 1
+
+
+                    # NOTE that cached targets refers to gene *transcripts*,
+                    # which can in turn putatively bind with cooperating miRNA
+                    # pairs at different nt. positions.
+                    # Since multiple transcripts can be originated from one
+                    # gene, and since the reconstruction of the secondary
+                    # structure of the resulting RNA triplex depends also from
+                    # the nt. sequence of a transcript, it is necessary to keep
+                    # track of which gene -and not only which transcript- is
+                    # found to be a target of concerted miRNA pair regulation.
+                    # ==> If the seed-binding distance resides within the
+                    #     allowed nt. range (Saetrom et al. 2007), store the
+                    #     gene's RefSeq ID. Later operations will use the
+                    #     RefSeq ID to retrieve the original genomic sequence,
+                    #     and transcript sequence at specified nt. ranges.
+
+                    target_genes = str(namespace + ":target" + ":genes")
+                    target_gene  = cache.hget(duplex1, TRANSCRIPT_ID_EXT)
+                    cache.sadd(target_genes, target_gene)
+                    logger.debug("    Worker %d:   caching Target gene %s",
+                        core, target_gene)
 
                 else:
                     logger.debug(

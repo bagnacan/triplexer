@@ -14,12 +14,10 @@ from common import *
 
 
 # logger
+#
 logger = logging.getLogger(TRIPLEXER)
 
-
-
 # file logger
-#
 LOGFILE = FILE_PATH.joinpath(str(TRIPLEXER + FILE_EXT_LOG))
 logging.basicConfig(
     level = logging.DEBUG,
@@ -28,10 +26,7 @@ logging.basicConfig(
     filename = LOGFILE,
     filemode = "w")
 
-
-
 # console logger
-#
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
 formatter = logging.Formatter("%(message)s")

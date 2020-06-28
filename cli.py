@@ -199,7 +199,7 @@ def get_supported_namespaces():
     supported_namespaces += line_divider
 
     for k, v in NAMESPACES.items():
-        label, num = v
+        label, source, origing, release, orgagnism, genome = v
         supported_namespaces += "|  {:<1}\t| {:<32} |\n".format(k, v[STRING])
 
     supported_namespaces += line_divider
