@@ -32,27 +32,53 @@ SEED_MAX_DISTANCE = 35
 #
 STRING = "string"
 SOURCE = "source"
+ORIGIN   = "origin"
+RELEASE  = "release"
+ORGANISM = "organism"
+GENOME   = "genome"
+
 MICRORNA_ORG = "microrna.org"
+
 NAMESPACES = {
     "test": {
         STRING: str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
-        SOURCE: "data/microrna.org__aug.2010__hsa__hg19.test"
+        SOURCE: "data/microrna.org__aug.2010__hsa__hg19.test",
+        ORIGIN: MICRORNA_ORG,
+        RELEASE:  "aug.2010",
+        ORGANISM: "hsa",
+        GENOME:   "hg19"
     },
     "1": {
         STRING: str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__hsa__hg19.tsv"
+        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__hsa__hg19.tsv",
+        ORIGIN: MICRORNA_ORG,
+        RELEASE:  "aug.2010",
+        ORGANISM: "hsa",
+        GENOME:   "hg19"
     },
     "2": {
         STRING: str(MICRORNA_ORG + ":aug.2010:mmu:mm9"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__mmu__mm9.tsv"
+        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__mmu__mm9.tsv",
+        ORIGIN: MICRORNA_ORG,
+        RELEASE:  "aug.2010",
+        ORGANISM: "mmu",
+        GENOME:   "mm9"
     },
     "3": {
         STRING: str(MICRORNA_ORG + ":aug.2010:rno:rn4"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__rno__rn4.tsv"
+        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__rno__rn4.tsv",
+        ORIGIN: MICRORNA_ORG,
+        RELEASE:  "aug.2010",
+        ORGANISM: "rno",
+        GENOME:   "rn4"
     },
     "4": {
         STRING: str(MICRORNA_ORG + ":aug.2010:dme:dm3"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__dme__dm3.tsv"
+        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__dme__dm3.tsv",
+        ORIGIN: MICRORNA_ORG,
+        RELEASE:  "aug.2010",
+        ORGANISM: "dme",
+        GENOME:   "dm3"
     }
 }
 
