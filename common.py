@@ -2,16 +2,14 @@
 # module for the common values
 #
 
-from pathlib import Path
-
 
 TRIPLEXER = "triplexer"
 VERSION   = "0.1"
 
 SEPARATOR = ":"
 FILE_EXT_LOG = ".log"
-FILE_PATH = Path("/tmp")
-TEST_PATH = Path("data")
+FILE_PATH = "/tmp"
+TEST_PATH = "data"
 
 
 
@@ -20,6 +18,16 @@ TEST_PATH = Path("data")
 #
 SEED_MIN_DISTANCE = 13
 SEED_MAX_DISTANCE = 35
+
+
+
+# genomic coordinates attributes of a RefSeq identifier
+#
+GENOME_BUILD = "genome build"
+CHROMOSOME   = "chromosome"
+TX_START = "transcription start position"
+TX_END   = "transcription end position"
+STRAND   = "strand"
 
 
 
@@ -81,4 +89,3 @@ NAMESPACES = {
         GENOME:   "dm3"
     }
 }
-

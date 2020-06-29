@@ -3,14 +3,14 @@
 #
 
 
-import cli
-import common
 import itertools
 import logging
 import redis
 import requests
 import sys
 import ucsc
+from cli import *
+from common import *
 from multiprocessing import Process
 from pathlib import Path
 from Bio.Seq import Seq
@@ -213,7 +213,7 @@ def read(cache, options):
 
     # the requested file is within the known test data path
     # ==> use it
-    if TEST_PATH in Path(ns_source).parents:
+    if Path(TEST_PATH) in Path(ns_source).parents:
 
         logger.info("Using \"test data\" target prediction file " + ns_source)
         in_file = Path(ns_source)
@@ -222,7 +222,7 @@ def read(cache, options):
     # ==> download it, or use its local copy
     else:
 
-        ns_file = FILE_PATH.joinpath(ns_source.split('/')[-1])
+        ns_file = Path(FILE_PATH).joinpath(ns_source.split('/')[-1])
 
         # file is not there
         # ==> download it

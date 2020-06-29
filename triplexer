@@ -10,15 +10,15 @@ import redis
 import sys
 from cli import *
 from common import *
+from pathlib import Path
 
 
 
 # logger
-#
 logger = logging.getLogger(TRIPLEXER)
 
 # file logger
-LOGFILE = FILE_PATH.joinpath(str(TRIPLEXER + FILE_EXT_LOG))
+LOGFILE = Path(FILE_PATH).joinpath(str(TRIPLEXER + FILE_EXT_LOG))
 logging.basicConfig(
     level = logging.DEBUG,
     format = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
