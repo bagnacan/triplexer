@@ -3,12 +3,12 @@
 #
 
 
-import common
 import logging
 import pymysql
 import re
 import requests
 from bs4 import BeautifulSoup
+from common import *
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
