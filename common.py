@@ -23,69 +23,69 @@ SEED_MAX_DISTANCE = 35
 
 # genomic coordinates attributes of a RefSeq identifier
 #
-GENOME_BUILD = "genome build"
-CHROMOSOME   = "chromosome"
-TX_START = "transcription start position"
-TX_END   = "transcription end position"
-STRAND   = "strand"
+REF_GENOME   = "genome build"
+REF_CHR      = "chromosome"
+REF_TX_START = "transcription start position"
+REF_TX_END   = "transcription end position"
+REF_STRAND   = "strand"
 
 
 
 # supported namespaces
 #
-# ADD NEW NAMESPACES IN THE FOLLOWING DICTIONARY
+# NOTE: ADD NEW NAMESPACES IN THE FOLLOWING DICTIONARY
 # - namespaces will appear in the usage instructions
 # - namespace numbers will be used as a shortcut to reference their string on
 #   the CLI
 #
-STRING = "string"
-SOURCE = "source"
-ORIGIN   = "origin"
-RELEASE  = "release"
-ORGANISM = "organism"
-GENOME   = "genome"
+NS_LABEL    = "ns label"
+NS_SOURCE   = "ns source"
+NS_ORIGIN   = "ns origin"
+NS_RELEASE  = "ns release"
+NS_ORGANISM = "ns organism"
+NS_GENOME   = "ns genome"
 
 MICRORNA_ORG = "microrna.org"
 
 NAMESPACES = {
     "test": {
-        STRING: str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
-        SOURCE: "data/microrna.org__aug.2010__hsa__hg19.test",
-        ORIGIN: MICRORNA_ORG,
-        RELEASE:  "aug.2010",
-        ORGANISM: "hsa",
-        GENOME:   "hg19"
+        NS_LABEL:    str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
+        NS_SOURCE:   "data/microrna.org__aug.2010__hsa__hg19.test",
+        NS_ORIGIN:   MICRORNA_ORG,
+        NS_RELEASE:  "aug.2010",
+        NS_ORGANISM: "hsa",
+        NS_GENOME:   "hg19"
     },
     "1": {
-        STRING: str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__hsa__hg19.tsv",
-        ORIGIN: MICRORNA_ORG,
-        RELEASE:  "aug.2010",
-        ORGANISM: "hsa",
-        GENOME:   "hg19"
+        NS_LABEL:    str(MICRORNA_ORG + ":aug.2010:hsa:hg19"),
+        NS_SOURCE:   "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__hsa__hg19.tsv",
+        NS_ORIGIN:   MICRORNA_ORG,
+        NS_RELEASE:  "aug.2010",
+        NS_ORGANISM: "hsa",
+        NS_GENOME:   "hg19"
     },
     "2": {
-        STRING: str(MICRORNA_ORG + ":aug.2010:mmu:mm9"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__mmu__mm9.tsv",
-        ORIGIN: MICRORNA_ORG,
-        RELEASE:  "aug.2010",
-        ORGANISM: "mmu",
-        GENOME:   "mm9"
+        NS_LABEL:    str(MICRORNA_ORG + ":aug.2010:mmu:mm9"),
+        NS_SOURCE:   "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__mmu__mm9.tsv",
+        NS_ORIGIN:   MICRORNA_ORG,
+        NS_RELEASE:  "aug.2010",
+        NS_ORGANISM: "mmu",
+        NS_GENOME:   "mm9"
     },
     "3": {
-        STRING: str(MICRORNA_ORG + ":aug.2010:rno:rn4"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__rno__rn4.tsv",
-        ORIGIN: MICRORNA_ORG,
-        RELEASE:  "aug.2010",
-        ORGANISM: "rno",
-        GENOME:   "rn4"
+        NS_LABEL:    str(MICRORNA_ORG + ":aug.2010:rno:rn4"),
+        NS_SOURCE:   "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__rno__rn4.tsv",
+        NS_ORIGIN:   MICRORNA_ORG,
+        NS_RELEASE:  "aug.2010",
+        NS_ORGANISM: "rno",
+        NS_GENOME:   "rn4"
     },
     "4": {
-        STRING: str(MICRORNA_ORG + ":aug.2010:dme:dm3"),
-        SOURCE: "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__dme__dm3.tsv",
-        ORIGIN: MICRORNA_ORG,
-        RELEASE:  "aug.2010",
-        ORGANISM: "dme",
-        GENOME:   "dm3"
+        NS_LABEL:    str(MICRORNA_ORG + ":aug.2010:dme:dm3"),
+        NS_SOURCE:   "https://zenodo.org/record/3870932/files/microrna.org__aug.2010__dme__dm3.tsv",
+        NS_ORIGIN:   MICRORNA_ORG,
+        NS_RELEASE:  "aug.2010",
+        NS_ORGANISM: "dme",
+        NS_GENOME:   "dm3"
     }
 }

@@ -55,7 +55,7 @@ def run(operation, cli_args):
     """
 
     ns_code = cli_args[OPT_NAMESPACE]
-    ns = NAMESPACES[ns_code][STRING].split(SEPARATOR)[0]
+    ns = NAMESPACES[ns_code][NS_LABEL].split(SEPARATOR)[0]
 
     logger.info("Operation \"%s\" started", operation)
     launch[ns][operation](cache, cli_args)
