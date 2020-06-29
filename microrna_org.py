@@ -157,7 +157,7 @@ def retrieve_genomice_sequences(cache, options, core):
 
             # handle the target gene's attributes with a Bio.SeqRecord object
             bio_seq = SeqRecord(seq="", id=target_gene)
-            bio_seq.annotations[GENOME_BUILD] = genome
+            bio_seq.annotations[REF_GENOME] = genome
 
             # update the target gene's attributes with the information
             # retrieved from the UCSC

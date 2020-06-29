@@ -61,7 +61,7 @@ def genomic_coordinates(bio_seq, core):
 
     db = pymysql.connect(host=UCSC_HOST, port=UCSC_PORT,
         user=UCSC_USER, password=UCSC_PASS,
-        database=bio_seq.annotations[GENOME_BUILD])
+        database=bio_seq.annotations[REF_GENOME])
 
     cursor = db.cursor()
 
@@ -73,10 +73,10 @@ def genomic_coordinates(bio_seq, core):
         result = bio_seq
 
         # update the annotations of the given Bio.SeqRecord object
-        result.annotations[CHROMOSOME] = data[0]
-        result.annotations[TX_START] = (data[1] + 1) # (1-based counting)
-        result.annotations[TX_END] = data[2]
-        result.annotations[STRAND] = data[3]
+        result.annotations[REF_CHR]      = data[0]
+        result.annotations[REF_TX_START] = (data[1] + 1) # (1-based counting)
+        result.annotations[REF_TX_END]   = data[2]
+        result.annotations[REF_STRAND]   = data[3]
 
         logger.debug("  Worker %d:   Retrieved genomic location of target %s from UCSC",
             core, bio_seq.id)
@@ -102,10 +102,10 @@ def genomic_sequence(bio_seq, core):
     """
 
     query = str(
-        DAS_HOST + bio_seq.annotations[GENOME_BUILD] +
-        DAS_QUERY + bio_seq.annotations[CHROMOSOME] +
-        SEPARATOR + str(bio_seq.annotations[TX_START]) +
-        DAS_SEPARATOR + str(bio_seq.annotations[TX_END]))
+        DAS_HOST + bio_seq.annotations[REF_GENOME] +
+        DAS_QUERY + bio_seq.annotations[REF_CHR] +
+        SEPARATOR + str(bio_seq.annotations[REF_TX_START]) +
+        DAS_SEPARATOR + str(bio_seq.annotations[REF_TX_END]))
 
     result = None
 
@@ -162,7 +162,7 @@ def transcript_sequence_in_range(bio_seq, start, end):
     between the given range (1-based counting).
     """
 
-    gene_start = bio_seq.annotations[TX_START]
+    gene_start = bio_seq.annotations[REF_TX_START]
 
     section = bio_seq.seq[(start - gene_start):((end - gene_start)+1)]
 

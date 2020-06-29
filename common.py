@@ -23,11 +23,11 @@ SEED_MAX_DISTANCE = 35
 
 # genomic coordinates attributes of a RefSeq identifier
 #
-GENOME_BUILD = "genome build"
-CHROMOSOME   = "chromosome"
-TX_START = "transcription start position"
-TX_END   = "transcription end position"
-STRAND   = "strand"
+REF_GENOME   = "genome build"
+REF_CHR      = "chromosome"
+REF_TX_START = "transcription start position"
+REF_TX_END   = "transcription end position"
+REF_STRAND   = "strand"
 
 
 
