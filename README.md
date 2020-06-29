@@ -4,17 +4,17 @@
 
 # Triplexer
 
-The Triplexer is the computational pipeline that builds the backend
-database of the [TriplexRNA](https://triplexrna.org): a database of
-cooperative microRNAs and their mutual targets.  
+The Triplexer is the computational pipeline that builds the backend database of
+the [TriplexRNA](https://triplexrna.org): a database of cooperative microRNAs
+and their mutual targets.  
 The pipeline is based on the work of [Lai et al.](https://doi.org/10.1093/nar/gks657)
-and [Schmitz et al.](https://doi.org/10.1093/nar/gku465), and extended to
-cover multiple organisms and prediction algorithms.
+and [Schmitz et al.](https://doi.org/10.1093/nar/gku465), and extended to cover
+multiple organisms and prediction algorithms.
 
 - [Installation requirements](#installation-requirements)
 - [Run the Triplexer](#run-the-triplexer)
   - [Operation read](#operation-read)
-  - [Operation filter](#operation-filter)
+  - [Operation filtrate](#operation-filtrate)
 
 
 
@@ -33,15 +33,14 @@ and install both Docker and Docker compose
 
 ## Run the Triplexer
 
-To run the Triplexer pipeline, you need to run the Triplexer docker
-container and all containers it relies on. This is done via docker
-compose. Type:
+To run the Triplexer pipeline, you need to run the Triplexer docker container
+and all containers it relies on. This is done via docker compose. Type:
 ```
 docker-compose run triplexer
 ```
 
-You can now launch the Triplexer pipeline. Try it with no arguments to
-overview its command line options:
+You can now launch the Triplexer pipeline. Try it with no arguments to overview
+its command line options:
 ```
 $ triplexer
 usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-i] [-r] [-f] [-p] [-t] [-n NS]
@@ -78,16 +77,16 @@ namespace:
                         +-------+----------------------------------+
 ```
 
-The Triplexer command line interface defines three operations, which allow
-for the creation of the multi-organism backend database of the [TriplexRNA](https://triplexrna.org).
+The Triplexer command line interface defines three operations, which allow for
+the creation of the multi-organism backend database of the [TriplexRNA](https://triplexrna.org).
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
 
 ### Operation read
 
-The *read* operation parses the provided RNA duplexes, and creates a cache
-that is used to find putative RNA triplexes.  
+The *read* operation parses the provided RNA duplexes, and creates a cache to
+store their attributes (later used to find putative RNA triplexes).  
 
 In a microrna.org file, each line represent an RNA *duplex*. These are
 carachterized by:
@@ -96,47 +95,46 @@ carachterized by:
 - a set of attributes related to the biological complex.
 
 Multiple lines can refer to the same target gene. For this reason, the read
-operation reads the provided input only once, and organizes the parsed
-duplex information as follows:
+operation reads the provided input only once, and organizes the parsed duplex
+information as follows:
 - *targets*  
-A set that stores the gene target identifiers
+A set that stores gene target identifiers
 - *target*  
-A value that represents a target identifier
+A string that represents a gene target identifier
 - *duplex*  
-A hash that stores the duplex details found at some line
+A hash that stores the attributes of a duplex
 - *target_duplexes*  
-A set that stores the duplexes targeting some target
+A set that stores all duplexes associated to some gene target
 
-So, for example, the set *targets* that registers all *target* identifiers
+So, for example, the set *targets*, which registers all *target* identifiers,
 will look like:
 ```
-microrna_org:aug2010:hsa:hg19:targets
-|- microrna_org:aug2010:hsa:hg19:target:uc001zmx.1
-|- microrna_org:aug2010:hsa:hg19:target:uc001ulh.2
-|- microrna_org:aug2010:hsa:hg19:target:uc010zln.1
+microrna_org:aug.2010:hsa:hg19:targets
+|- microrna_org:aug.2010:hsa:hg19:target:uc001zmx.1
+|- microrna_org:aug.2010:hsa:hg19:target:uc001ulh.2
+|- microrna_org:aug.2010:hsa:hg19:target:uc010zln.1
 |- ...
 ```
 
-The set *target_duplex* of target ``uc001zmx.1`` that stores all duplex
-entries targeting ``uc001zmx.1`` will look like:
+The set *target_duplexes* of target ``uc001zmx.1``, which stores all duplexes
+associated to target ``uc001zmx.1``, will look like:
 ```
-microrna_org:aug2010:hsa:hg19:target:uc001zmx.1:duplexes
-|- microrna_org:aug2010:hsa:hg19:duplex:line524
+microrna_org:aug.2010:hsa:hg19:target:uc001zmx.1:duplexes
+|- microrna_org:aug.2010:hsa:hg19:duplex:line524
 |- ...
 ```
-While the set *target_duplex* of target ``uc001ulh.2`` that stores all
-duplex targeting ``uc001ulh.2`` will look like:
+While the set *target_duplexes* of target ``uc001ulh.2``, which stores all
+duplexes associated to target ``uc001ulh.2``, will look like:
 ```
-microrna_org:aug2010:hsa:hg19:target:uc001ulh.2:duplexes
-|- microrna_org:aug2010:hsa:hg19:duplex:line277
+microrna_org:aug.2010:hsa:hg19:target:uc001ulh.2:duplexes
+|- microrna_org:aug.2010:hsa:hg19:duplex:line277
 |- ...
 ```
 
 And so on.  
 
-**Example**: Create a cache of microrna.org's Human hg19 [target site
-predictions](http://www.microrna.org/microrna/getDownloads.do) to find
-putative RNA triplexes:
+**Example**: Read (and cache) microrna.org's Human hg19 [target site prediction](http://www.microrna.org/microrna/getDownloads.do)
+duplexes:
 ```
 triplexer -r
 ```
@@ -145,21 +143,21 @@ triplexer -r
 
 
 
-### Operation filter
+### Operation filtrate
 
 Experimental findings suggest that RNA triplexes form when two cooperating
-miRNAs bind a common target with a seed site distance between 13 and 35
+miRNAs bind a common target gene with a seed site distance between 13 and 35
 nucleotides [(Saetrom et al. 2007)](https://doi.org/10.1093/nar/gkm133).
-This means that among those cached duplexes that share a common target,
-there might also some that do not comply with the aforementioned seed site
-distance constraint.  
-The *filter* operation takes all duplexes targeting some gene, creates an
-index of all possible duplex pairs, and discards those that do not comply
-with the constraint.  
+This means that duplex pairs that share a common target must be tested for
+complying with the aforementioned seed site distance.
+constraint.  
+The *filtrate* operation relies on the *read* operation (see above). It takes
+all the cached duplexes that share a common target gene, and records those
+pairs that comply with the seed site distance constraint.  
 
-This operation relies on the cache created by the read operation (see above).  
 With reference to the names defined in the [operation read](#operation-read)
-section, the filter's behavior can be summarized by the following pseudo-code:
+section, this operation's behavior can be summarized by the following
+pseudo-code:
 ```
 for each target in the set of targets:
     for each duplex in the set of target_duplexes:
@@ -168,8 +166,8 @@ for each target in the set of targets:
             cache the duplex pair
 ```
 
-**Example**: Filter the cached duplexes to retain only those whose miRNA bind a
-common target within the allowed binding distance range:
+**Example**: Filtrate every possible duplex pair, and record those whose miRNA
+pairs bind a common target gene within the allowed binding distance range:
 ```
 triplexer -f
 ```
