@@ -126,31 +126,31 @@ def triplexer_parser():
 
     # operation arguments start
     #
-    parser.add_argument_group("operations (require "
+    parser_op = parser.add_argument_group("operations (require "
         + OPT_NAMESPACE_SHORT + ")")
 
-    parser.add_argument(
+    parser_op.add_argument(
         OPT_READ_SHORT,
         OPT_READ_EXT,
         action="store_true",
         default=argparse.SUPPRESS,
         help=str("read the provided dataset in memory"))
 
-    parser.add_argument(
+    parser_op.add_argument(
         OPT_FILTRATE_SHORT,
         OPT_FILTRATE_EXT,
         action="store_true",
         default=argparse.SUPPRESS,
         help=str("filter entries not forming putative triplexes"))
 
-    parser.add_argument(
+    parser_op.add_argument(
         OPT_ANNOTATE_SHORT,
         OPT_ANNOTATE_EXT,
         action="store_true",
         default=argparse.SUPPRESS,
         help=str("annotate transcripts with their sequences"))
 
-    parser.add_argument(
+    parser_op.add_argument(
         OPT_INIT_NS_SHORT,
         OPT_INIT_NS_EXT,
         action="store_true",
@@ -159,14 +159,14 @@ def triplexer_parser():
             + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
             + ")"))
 
-    parser.add_argument(
+    parser_op.add_argument(
         OPT_PREDICT_SHORT,
         OPT_PREDICT_EXT,
         action="store_true",
         default=argparse.SUPPRESS,
         help="predict putative triplexes")
 
-    parser.add_argument(
+    parser_op.add_argument(
         OPT_TEST_SHORT,
         OPT_TEST_EXT,
         action="store_true",
@@ -180,8 +180,8 @@ def triplexer_parser():
     #
     supported_namespaces = get_supported_namespaces() # supported namespaces
 
-    parser.add_argument_group("namespace")
-    parser.add_argument(
+    parser_ns = parser.add_argument_group("namespace")
+    parser_ns.add_argument(
         OPT_NAMESPACE_SHORT,
         OPT_NAMESPACE_EXT,
         metavar="NS",
