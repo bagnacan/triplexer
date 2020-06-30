@@ -41,7 +41,8 @@ launch = {
     MICRORNA_ORG : {
         OPT_INIT_NS: microrna_org.init_ns,
         OPT_READ: microrna_org.read,
-        OPT_FILTRATE: microrna_org.filtrate
+        OPT_FILTRATE: microrna_org.filtrate,
+        OPT_ANNOTATE: microrna_org.annotate
     }
 }
 

@@ -80,28 +80,17 @@ crawl_ucsc = {
 
 
 
-# initialize the microrna.org namespace by triggering the read and filtrate
-# operations, and crawl the UCSC to retrieve each target gene's transcript
-# sequence given its RefSeq identifier.
+# annotate each duplex with their gene's transcript sequences.
+# Do so by crawling the UCSC to retrieve each target gene's genomic coordinates
+# and sequence, and extract the corresponding transcript sequences that is
+# found within the binding sites of the putatively cooperating miRNA pairs
 #
-def init_ns(cache, options):
+def annotate(cache, options):
     """
-    Initializes the microrna.org namespace by: 1) reading its predicted RNA
-    duplexes (operation read); 2) keep each duplex pair whose seed-binding
-    distance resides within the allowed nt. range (Saetrom et al. 2007)
-    (operation filtrate); 3) retrieving each target gene's transcript sequence
-    from the UCSC.
+    Retrieves each target gene's transcript sequence from the UCSC.
     """
-
-    # operation read
-    read(cache, options)
-
-    # operation filtrate
-    filtrate(cache, options)
-
-    # crawl the UCSC to retrieve each target's genomic sequence (using their
-    # RefSeq IDs)
-
+    # crawl the UCSC to retrieve each target gene's genomic sequence (using
+    # their RefSeq IDs)
     procs = [
         Process(
             target=retrieve_genomice_sequences,
@@ -111,6 +100,29 @@ def init_ns(cache, options):
     [px.start() for px in procs]
     [px.join()  for px in procs]
     [px.close() for px in procs]
+
+#   transcript_seq = transcript_sequence_in_range(bio_seq,
+#       cache.hget(target, ALIGNMENT_GENE_START),
+#       cache.hget(target, ALIGNMENT_GENE_END))
+
+
+
+# initialize the microrna.org namespace by triggering the read and filtrate
+# operations
+#
+def init_ns(cache, options):
+    """
+    Initializes the microrna.org namespace by: 1) reading its predicted RNA
+    duplexes (operation read); 2) keep each duplex pair whose seed-binding
+    distance resides within the allowed nt. range (Saetrom et al. 2007)
+    (operation filtrate).
+    """
+
+    # operation read
+    read(cache, options)
+
+    # operation filtrate
+    filtrate(cache, options)
 
 
 
@@ -178,10 +190,6 @@ def retrieve_genomice_sequences(cache, options, core):
                 cache.sadd(target_genes_pass, target_gene)
                 logger.debug("  Worker %d:   Target gene %s kept",
                     core, target_gene)
-
-#            transcript_seq = transcript_sequence_in_range(bio_seq,
-#                cache.hget(target, ALIGNMENT_GENE_START),
-#                cache.hget(target, ALIGNMENT_GENE_END))
 
     logger.info(
         "  Worker %d: Requested genomic sequences of %d target genes. Retrieved %d (%d failed)",
