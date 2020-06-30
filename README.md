@@ -60,6 +60,7 @@ operations (require -n):
                         (same as -r -f)
   -r, --read            read the provided dataset in memory
   -f, --filtrate        filter entries not forming putative triplexes
+  -a, --annotate        annotate transcripts with their sequences
   -p, --predict         predict putative triplexes
   -t, --test            test stability of predicted triplexes
 
