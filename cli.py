@@ -46,6 +46,12 @@ OPT_INIT_NS_SAME_AS_CLI = [
     OPT_READ_SHORT,
     OPT_FILTRATE_SHORT
 ]
+
+# annotate
+OPT_ANNOTATE         = "annotate"
+OPT_ANNOTATE_SHORT   = str("-" + OPT_ANNOTATE[:1])
+OPT_ANNOTATE_EXT     = str("--" + OPT_ANNOTATE)
+
 # predict
 OPT_PREDICT       = "predict"
 OPT_PREDICT_SHORT = str("-" + OPT_PREDICT[:1])
@@ -61,6 +67,7 @@ OPS = [
     OPT_INIT_NS,
     OPT_READ,
     OPT_FILTRATE,
+    OPT_ANNOTATE,
     OPT_PREDICT,
     OPT_TEST
 ]
@@ -123,15 +130,6 @@ def triplexer_parser():
         + OPT_NAMESPACE_SHORT + ")")
 
     parser.add_argument(
-        OPT_INIT_NS_SHORT,
-        OPT_INIT_NS_EXT,
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help=str("initialize the cache with putative RNA triplexes\n"
-            + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
-            + ")"))
-
-    parser.add_argument(
         OPT_READ_SHORT,
         OPT_READ_EXT,
         action="store_true",
@@ -144,6 +142,22 @@ def triplexer_parser():
         action="store_true",
         default=argparse.SUPPRESS,
         help=str("filter entries not forming putative triplexes"))
+
+    parser.add_argument(
+        OPT_ANNOTATE_SHORT,
+        OPT_ANNOTATE_EXT,
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help=str("annotate transcripts with their sequences"))
+
+    parser.add_argument(
+        OPT_INIT_NS_SHORT,
+        OPT_INIT_NS_EXT,
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help=str("initialize the cache with putative RNA triplexes\n"
+            + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
+            + ")"))
 
     parser.add_argument(
         OPT_PREDICT_SHORT,
