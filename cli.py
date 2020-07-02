@@ -52,24 +52,12 @@ OPT_ANNOTATE         = "annotate"
 OPT_ANNOTATE_SHORT   = str("-" + OPT_ANNOTATE[:1])
 OPT_ANNOTATE_EXT     = str("--" + OPT_ANNOTATE)
 
-# predict
-OPT_PREDICT       = "predict"
-OPT_PREDICT_SHORT = str("-" + OPT_PREDICT[:1])
-OPT_PREDICT_EXT   = str("--" + OPT_PREDICT)
-
-# test
-OPT_TEST       = "test"
-OPT_TEST_SHORT = str("-" + OPT_TEST[:1])
-OPT_TEST_EXT   = str("--" + OPT_TEST)
-
 # all operations
 OPS = [
     OPT_INIT_NS,
     OPT_READ,
     OPT_FILTRATE,
-    OPT_ANNOTATE,
-    OPT_PREDICT,
-    OPT_TEST
+    OPT_ANNOTATE
 ]
 
 
@@ -158,20 +146,6 @@ def triplexer_parser():
         help=str("initialize the cache with putative RNA triplexes\n"
             + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
             + ")"))
-
-    parser_op.add_argument(
-        OPT_PREDICT_SHORT,
-        OPT_PREDICT_EXT,
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="predict putative triplexes")
-
-    parser_op.add_argument(
-        OPT_TEST_SHORT,
-        OPT_TEST_EXT,
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="test stability of predicted triplexes")
     #
     # operation arguments end
 
