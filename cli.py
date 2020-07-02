@@ -13,9 +13,9 @@ from common import *
 OPT_NAMESPACE       = "ns"
 OPT_NAMESPACE_SHORT = str("-" + OPT_NAMESPACE[:1])
 OPT_NAMESPACE_EXT   = str("--" + OPT_NAMESPACE)
-OPT_CORES       = "exe"
-OPT_CORES_SHORT = str("-" + OPT_CORES[1:2])
-OPT_CORES_EXT   = str("--" + OPT_CORES[:3])
+OPT_EXE       = "exe"
+OPT_EXE_SHORT = str("-" + OPT_EXE[:1])
+OPT_EXE_EXT   = str("--" + OPT_EXE[:])
 OPT_DB       = "db"
 OPT_DB_SHORT = str("-" + OPT_DB[:1])
 OPT_DB_EXT   = str("--" + OPT_DB)
@@ -52,24 +52,12 @@ OPT_ANNOTATE         = "annotate"
 OPT_ANNOTATE_SHORT   = str("-" + OPT_ANNOTATE[:1])
 OPT_ANNOTATE_EXT     = str("--" + OPT_ANNOTATE)
 
-# predict
-OPT_PREDICT       = "predict"
-OPT_PREDICT_SHORT = str("-" + OPT_PREDICT[:1])
-OPT_PREDICT_EXT   = str("--" + OPT_PREDICT)
-
-# test
-OPT_TEST       = "test"
-OPT_TEST_SHORT = str("-" + OPT_TEST[:1])
-OPT_TEST_EXT   = str("--" + OPT_TEST)
-
 # all operations
 OPS = [
     OPT_INIT_NS,
     OPT_READ,
     OPT_FILTRATE,
-    OPT_ANNOTATE,
-    OPT_PREDICT,
-    OPT_TEST
+    OPT_ANNOTATE
 ]
 
 
@@ -107,11 +95,11 @@ def triplexer_parser():
 
     # cores
     parser.add_argument(
-        OPT_CORES_SHORT,
-        OPT_CORES_EXT,
-        metavar="CORES",
+        OPT_EXE_SHORT,
+        OPT_EXE_EXT,
+        metavar="EXE",
         default="2",
-        help="set %(metavar)s as number of parallel processes")
+        help="set %(metavar)s as number of parallely executing processes")
 
     # cache
     parser.add_argument(
@@ -158,20 +146,6 @@ def triplexer_parser():
         help=str("initialize the cache with putative RNA triplexes\n"
             + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
             + ")"))
-
-    parser_op.add_argument(
-        OPT_PREDICT_SHORT,
-        OPT_PREDICT_EXT,
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="predict putative triplexes")
-
-    parser_op.add_argument(
-        OPT_TEST_SHORT,
-        OPT_TEST_EXT,
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="test stability of predicted triplexes")
     #
     # operation arguments end
 
