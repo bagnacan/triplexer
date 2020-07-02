@@ -95,7 +95,7 @@ def annotate(cache, options):
         Process(
             target=retrieve_genomice_sequences,
             args=(cache, options, x)
-        ) for x in range(int(options[OPT_CORES]))
+        ) for x in range(int(options[OPT_EXE]))
     ]
     [px.start() for px in procs]
     [px.join()  for px in procs]
@@ -409,7 +409,7 @@ def filtrate(cache, options):
         Process(
             target=generate_allowed_comparisons,
             args=(cache, options, x)
-        ) for x in range(int(options[OPT_CORES]))
+        ) for x in range(int(options[OPT_EXE]))
     ]
     [p.start() for p in procs]
     [p.join() for p in procs]
