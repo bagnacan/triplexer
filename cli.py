@@ -13,9 +13,9 @@ from common import *
 OPT_NAMESPACE       = "ns"
 OPT_NAMESPACE_SHORT = str("-" + OPT_NAMESPACE[:1])
 OPT_NAMESPACE_EXT   = str("--" + OPT_NAMESPACE)
-OPT_CORES       = "exe"
-OPT_CORES_SHORT = str("-" + OPT_CORES[1:2])
-OPT_CORES_EXT   = str("--" + OPT_CORES[:3])
+OPT_EXE       = "exe"
+OPT_EXE_SHORT = str("-" + OPT_EXE[:1])
+OPT_EXE_EXT   = str("--" + OPT_EXE[:])
 OPT_DB       = "db"
 OPT_DB_SHORT = str("-" + OPT_DB[:1])
 OPT_DB_EXT   = str("--" + OPT_DB)
@@ -95,11 +95,11 @@ def triplexer_parser():
 
     # cores
     parser.add_argument(
-        OPT_CORES_SHORT,
-        OPT_CORES_EXT,
-        metavar="CORES",
+        OPT_EXE_SHORT,
+        OPT_EXE_EXT,
+        metavar="EXE",
         default="2",
-        help="set %(metavar)s as number of parallel processes")
+        help="set %(metavar)s as number of parallely executing processes")
 
     # cache
     parser.add_argument(
