@@ -107,25 +107,6 @@ def annotate(cache, options):
 
 
 
-# initialize the microrna.org namespace by triggering the read and filtrate
-# operations
-#
-def init_ns(cache, options):
-    """
-    Initializes the microrna.org namespace by: 1) reading its predicted RNA
-    duplexes (operation read); 2) keep each duplex pair whose seed-binding
-    distance resides within the allowed nt. range (Saetrom et al. 2007)
-    (operation filtrate).
-    """
-
-    # operation read
-    read(cache, options)
-
-    # operation filtrate
-    filtrate(cache, options)
-
-
-
 # crawl UCSC to retrieve the genomic sequence of a cached target gene:
 # - fetch the next target gene
 # - create a Bio.SeqRecord object to store its RefSeq ID and genome build
