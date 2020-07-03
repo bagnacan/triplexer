@@ -105,8 +105,14 @@ if __name__ == "__main__":
         sys.exit(2)
 
 
-    # launch all operations given on the CLI
-    for op in OPS:
+    # launch all namespace-sepcific-operations given on the CLI
+    ns_code = cli_args[OPT_NAMESPACE]
+    ns = NAMESPACES[ns_code][NS_LABEL].split(SEPARATOR)[0]
+
+    for op in OPS[ns]:
         if op in cli_args.keys():
-            run(op, cli_args)
+            logger.info("Operation \"%s\" started", op)
+            launch[ns][op](cache, cli_args)
+            logger.info("Operation \"%s\" completed", op)
+#            run(op, cli_args)
 

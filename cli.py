@@ -53,12 +53,40 @@ OPT_ANNOTATE_SHORT   = str("-" + OPT_ANNOTATE[:1])
 OPT_ANNOTATE_EXT     = str("--" + OPT_ANNOTATE)
 
 # all operations
-OPS = [
-    OPT_INIT_NS,
-    OPT_READ,
-    OPT_FILTRATE,
-    OPT_ANNOTATE
-]
+#
+# NOTE: ADD NEW NAMESPACES-SPECIFIC-OPERATIONS IN THE FOLLOWING DICTIONARY
+# The triplexer identifies 3 abstract operations:
+# - read        for reading an input file containing miRNA duplexes
+# - filtrate    for keeping only those miRNA duplexes that bind a common target
+#               gene in compliance with defined structural constraints
+# - annotate    to retrieve the target gene's transcript sequence from a remote
+#               database
+# Since the identification of putative RNA triplexes is carried out by
+# harvesting data from different sources (namespace, e.g. microrna.org,
+# TargetScan, etc.), it is safe to assume that input datasets have a different
+# organization, i.e. duplex information in a microrna.org file are not the same
+# as those found in a TargetScan dataset. Hence, the implementation and
+# combination of each operations is "namespace-specific".
+# For example, to find putative RNA triplexes in a microrna.org dataset, one
+# needs to run:
+# - a namespace-specific implementation of the operation read
+# - a namespace-agnostic implementation of the operation filtrate
+# - a namespace-agnostic implementation of the operation annotate
+# However, to find putative RNA triplexes from a different namespace, one might
+# need to instead run:
+# - a namespace-specific implementation of the operation read
+# - the same namespace-agnostic implementation of the operation filtrate
+# - no operation annotate
+# For this reason, we collect the set of all namespace-specific-operations
+# in the following dictionary
+OPS = {
+    MICRORNA_ORG: [
+        OPT_INIT_NS,
+        OPT_READ,
+        OPT_FILTRATE,
+        OPT_ANNOTATE
+    ]
+}
 
 
 
