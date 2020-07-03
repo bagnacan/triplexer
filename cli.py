@@ -34,19 +34,6 @@ OPT_FILTRATE         = "filtrate"
 OPT_FILTRATE_SHORT   = str("-" + OPT_FILTRATE[:1])
 OPT_FILTRATE_EXT     = str("--" + OPT_FILTRATE)
 
-# init namespaces
-OPT_INIT_NS         = "init_ns"
-OPT_INIT_NS_SHORT   = str("-" + OPT_INIT_NS[:1])
-OPT_INIT_NS_EXT     = str("--" + OPT_INIT_NS)
-OPT_INIT_NS_SAME_AS = [
-    OPT_READ,
-    OPT_FILTRATE
-]
-OPT_INIT_NS_SAME_AS_CLI = [
-    OPT_READ_SHORT,
-    OPT_FILTRATE_SHORT
-]
-
 # annotate
 OPT_ANNOTATE         = "annotate"
 OPT_ANNOTATE_SHORT   = str("-" + OPT_ANNOTATE[:1])
@@ -81,7 +68,6 @@ OPT_ANNOTATE_EXT     = str("--" + OPT_ANNOTATE)
 # in the following dictionary
 OPS = {
     MICRORNA_ORG: [
-        OPT_INIT_NS,
         OPT_READ,
         OPT_FILTRATE,
         OPT_ANNOTATE
@@ -121,7 +107,7 @@ def triplexer_parser():
         type=argparse.FileType("r"),
         help="set %(metavar)s as configuration file")
 
-    # cores
+    # multiprocessing
     parser.add_argument(
         OPT_EXE_SHORT,
         OPT_EXE_EXT,
@@ -165,15 +151,6 @@ def triplexer_parser():
         action="store_true",
         default=argparse.SUPPRESS,
         help=str("annotate transcripts with their sequences"))
-
-    parser_op.add_argument(
-        OPT_INIT_NS_SHORT,
-        OPT_INIT_NS_EXT,
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help=str("initialize the cache with putative RNA triplexes\n"
-            + "(same as " + " ".join( str(x) for x in OPT_INIT_NS_SAME_AS_CLI)
-            + ")"))
     #
     # operation arguments end
 
