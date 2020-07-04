@@ -43,7 +43,7 @@ You can now launch the Triplexer pipeline. Try it with no arguments to overview
 its command line options:
 ```
 $ triplexer
-usage: triplexer [-h] [-v] [-c CONF] [-x CORES] [-d DB] [-i] [-r] [-f] [-p] [-t] [-n NS]
+usage: triplexer [-h] [-v] [-c CONF] [-e EXE] [-d DB] [-r] [-f] [-a] [-n NS]
 
 Predict and simulate putative RNA triplexes.
 
@@ -51,18 +51,13 @@ optional arguments:
   -h, --help            show this help message and exit
   -v, --version         print the version and exit
   -c CONF, --conf CONF  set CONF as configuration file
-  -x CORES, --exe CORES
-                        set CORES as number of parallel processes
+  -e EXE, --exe EXE     set EXE as number of parallely executing processes
   -d DB, --db DB        set DB as intermediate results database
 
 operations (require -n):
-  -i, --init_ns         initialize the cache with putative RNA triplexes
-                        (same as -r -f)
   -r, --read            read the provided dataset in memory
   -f, --filtrate        filter entries not forming putative triplexes
   -a, --annotate        annotate transcripts with their sequences
-  -p, --predict         predict putative triplexes
-  -t, --test            test stability of predicted triplexes
 
 namespace:
   -n NS, --ns NS        set NS as model organism namespace
