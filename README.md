@@ -14,8 +14,8 @@ multiple organisms and prediction algorithms.
 - [Installation requirements](#installation-requirements)
 - [Run the Triplexer](#run-the-triplexer)
   - [Namespace-specific-operations](#namespace-specific-operations)
-  - [Operation read](#operation-read)
-  - [Operation filtrate](#operation-filtrate)
+  - [Read duplexes](#read-duplexes)
+  - [Filtrate-duplexes](#filtrate-duplexes)
 
 
 
@@ -91,7 +91,7 @@ _namespace-specific_.
 
 
 
-### Operation read
+### Read duplexes
 
 The *read* operation parses the provided RNA duplexes, and creates a cache to
 store their attributes (later used to find putative RNA triplexes).  
@@ -151,7 +151,7 @@ triplexer -r
 
 
 
-### Operation filtrate
+### Filtrate duplexes
 
 Experimental findings suggest that RNA triplexes form when two cooperating
 miRNAs bind a common target gene with a seed site distance between 13 and 35
