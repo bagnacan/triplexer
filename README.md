@@ -13,6 +13,7 @@ multiple organisms and prediction algorithms.
 
 - [Installation requirements](#installation-requirements)
 - [Run the Triplexer](#run-the-triplexer)
+  - [Namespace-specific-operations](#namespace-specific-operations)
   - [Operation read](#operation-read)
   - [Operation filtrate](#operation-filtrate)
 
@@ -72,9 +73,20 @@ namespace:
                         |  4    | microrna.org:aug.2010:dme:dm3    |
                         +-------+----------------------------------+
 ```
+<p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
-The Triplexer command line interface defines three operations, which allow for
-the creation of the multi-organism backend database of the [TriplexRNA](https://triplexrna.org).
+
+## Namespace-specific-operations
+
+The Triplexer defines three operations: _read_, _filtrate_, and _annotate_;
+each of which is referred to a _namespace_, _i.e._ a resource (file, database,
+etc.) that describes the RNA duplexes of a specific organism.  
+Namespaces are used to capture the provenance of a predicted RNA duplex, and
+subsequently keep the identification of putative RNA triplexes consistent
+across different organisms and genome releases.  
+Different namespaces provide data with different sets of identifiers and
+diverse levels of granularity. For this reason, the three operations are
+_namespace-specific_.
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
