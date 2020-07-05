@@ -12,10 +12,11 @@ and [Schmitz et al.](https://doi.org/10.1093/nar/gku465), and extended to cover
 multiple organisms and prediction algorithms.
 
 - [Installation requirements](#installation-requirements)
-- [Run the Triplexer](#run-the-triplexer)
-  - [Namespace-specific-operations](#namespace-specific-operations)
+- [Operations](#operations)
   - [Read duplexes](#read-duplexes)
   - [Filtrate-duplexes](#filtrate-duplexes)
+- [Run the Triplexer](#run-the-triplexer)
+  - [Examples](#examples)
 
 
 
@@ -28,6 +29,65 @@ and install both Docker and Docker compose
 - MacOS 10.13+ users should follow the [Docker installation for Mac](https://docs.docker.com/docker-for-mac/install/)
 - Windows 10+ users, should follow the [Docker installation for Windows](https://docs.docker.com/docker-for-windows/install/)
 - For legacy systems, users can rely on the [Docker Toolbox](https://docs.docker.com/toolbox/overview/).
+
+<p align="right"><a href="#top">&#x25B2; back to top</a></p>
+
+
+
+## Operations
+
+The Triplexer defines three operations: _read_, _filtrate_, and _annotate_;
+each of which is referred to a _namespace_, _i.e._ a resource (file, database,
+etc.) that describes the RNA duplexes of a specific organism.  
+Namespaces are used to capture the provenance of a predicted RNA duplex, and
+subsequently keep the identification of putative RNA triplexes consistent
+across different organisms and genome releases.
+
+<p align="right"><a href="#top">&#x25B2; back to top</a></p>
+
+
+
+### Read duplexes
+
+This operation parses a file (or queries a database) containing the attributes
+of a set of organism-specific RNA duplexes, and stores their attributes in the
+underlying Redis cache as a set of hashes.  
+Since each namespace defines its own data structures, identifiers, and
+granularity of data, this operation is likely to be redefined by each
+namespace. However, output data structures share a common schema regardless of
+their namespace of origin. For instance, each RNA duplex is identified by the
+unique string:
+```
+<namespace label>:<dataset release>:<organism>:<genome build>:target:<target id>
+```
+
+#For more information about a namespace-specific read implementation, please
+#refer to the [IMPLEMENTATIONS.md](https://github.com/sbi-rostock/triplexer/blob/master/IMPLEMENTATIONS.md).
+
+<p align="right"><a href="#top">&#x25B2; back to top</a></p>
+
+
+
+### Filtrate duplexes
+
+Experimental findings suggest that RNA triplexes form when two cooperating
+miRNAs bind a common target gene with a seed site distance between 13 and 35
+nucleotides [(Saetrom et al. 2007)](https://doi.org/10.1093/nar/gkm133).
+This means that duplex pairs that share a common target must be tested for
+complying with the aforementioned seed site distance.
+constraint.  
+Filtrate relies on the read operation (see above). It compares all the cached
+duplexes that share a common target gene, and keeps those pairs that comply
+with the seed site distance constraint. This operation is namespace agnostic.
+Its behavior can be summarized by the following pseudo-code:
+```
+for each target in the set of targets:
+    for each duplex in the set of the target's duplexes:
+        if duplex pair has miRNA alignment within binding range constraint:
+            cache the target
+            cache the duplex pair
+```
+
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
@@ -73,110 +133,24 @@ namespace:
                         |  4    | microrna.org:aug.2010:dme:dm3    |
                         +-------+----------------------------------+
 ```
-<p align="right"><a href="#top">&#x25B2; back to top</a></p>
-
-
-## Namespace-specific-operations
-
-The Triplexer defines three operations: _read_, _filtrate_, and _annotate_;
-each of which is referred to a _namespace_, _i.e._ a resource (file, database,
-etc.) that describes the RNA duplexes of a specific organism.  
-Namespaces are used to capture the provenance of a predicted RNA duplex, and
-subsequently keep the identification of putative RNA triplexes consistent
-across different organisms and genome releases.  
-Different namespaces provide data with different sets of identifiers and
-diverse levels of granularity. For this reason, the three operations are
-_namespace-specific_.
-<p align="right"><a href="#top">&#x25B2; back to top</a></p>
-
-
-
-### Read duplexes
-
-The *read* operation parses the provided RNA duplexes, and creates a cache to
-store their attributes (later used to find putative RNA triplexes).  
-
-In a microrna.org file, each line represent an RNA *duplex*. These are
-carachterized by:
-- a gene target identifier,
-- a miRNA identifier,
-- a set of attributes related to the biological complex.
-
-Multiple lines can refer to the same target gene. For this reason, the read
-operation reads the provided input only once, and organizes the parsed duplex
-information as follows:
-- *targets*  
-A set that stores gene target identifiers
-- *target*  
-A string that represents a gene target identifier
-- *duplex*  
-A hash that stores the attributes of a duplex
-- *target_duplexes*  
-A set that stores all duplexes associated to some gene target
-
-So, for example, the set *targets*, which registers all *target* identifiers,
-will look like:
-```
-microrna_org:aug.2010:hsa:hg19:targets
-|- microrna_org:aug.2010:hsa:hg19:target:uc001zmx.1
-|- microrna_org:aug.2010:hsa:hg19:target:uc001ulh.2
-|- microrna_org:aug.2010:hsa:hg19:target:uc010zln.1
-|- ...
-```
-
-The set *target_duplexes* of target ``uc001zmx.1``, which stores all duplexes
-associated to target ``uc001zmx.1``, will look like:
-```
-microrna_org:aug.2010:hsa:hg19:target:uc001zmx.1:duplexes
-|- microrna_org:aug.2010:hsa:hg19:duplex:line524
-|- ...
-```
-While the set *target_duplexes* of target ``uc001ulh.2``, which stores all
-duplexes associated to target ``uc001ulh.2``, will look like:
-```
-microrna_org:aug.2010:hsa:hg19:target:uc001ulh.2:duplexes
-|- microrna_org:aug.2010:hsa:hg19:duplex:line277
-|- ...
-```
-
-And so on.  
-
-**Example**: Read (and cache) microrna.org's Human hg19 [target site prediction](http://www.microrna.org/microrna/getDownloads.do)
-duplexes:
-```
-triplexer -r
-```
 
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
 
-### Filtrate duplexes
+### Examples
 
-Experimental findings suggest that RNA triplexes form when two cooperating
-miRNAs bind a common target gene with a seed site distance between 13 and 35
-nucleotides [(Saetrom et al. 2007)](https://doi.org/10.1093/nar/gkm133).
-This means that duplex pairs that share a common target must be tested for
-complying with the aforementioned seed site distance.
-constraint.  
-The *filtrate* operation relies on the *read* operation (see above). It takes
-all the cached duplexes that share a common target gene, and records those
-pairs that comply with the seed site distance constraint.  
-
-With reference to the names defined in the [operation read](#operation-read)
-section, this operation's behavior can be summarized by the following
-pseudo-code:
+Read microrna.org's Human hg19 [target site predictions](http://www.microrna.org/microrna/getDownloads.do):
 ```
-for each target in the set of targets:
-    for each duplex in the set of target_duplexes:
-        if duplex pair has miRNA alignment within binding range constraint:
-            cache the target
-            cache the duplex pair
+triplexer -n 1 -r
 ```
 
-**Example**: Filtrate every possible duplex pair, and record those whose miRNA
-pairs bind a common target gene within the allowed binding distance range:
+Filtrate all microrna.org's duplexes by keeping those whose miRNA pairs bind a
+common target gene within the allowed distance range. Do so using 4 parallel
+processes:
 ```
-triplexer -f
+triplexer -e 4 -n 1 -f
 ```
+
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
+
