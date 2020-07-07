@@ -15,6 +15,7 @@ multiple organisms and prediction algorithms.
 - [Operations](#operations)
   - [Read duplexes](#read-duplexes)
   - [Filtrate duplexes](#filtrate-duplexes)
+  - [Annotate duplexes](#annotate-duplexes)
 - [Run the Triplexer](#run-the-triplexer)
   - [Examples](#examples)
 
@@ -88,6 +89,18 @@ for each target in the set of targets:
             cache the duplex pair
 ```
 
+<p align="right"><a href="#top">&#x25B2; back to top</a></p>
+
+
+
+### Annotate duplexes
+
+The in-silico testing of a putative RNA triplex's structural stability can only
+be performed when the nucleotide sequences of both target gene's transcript and
+miRNA pair are given. However, not all dataset provide this information. For
+this reason, the annotate operation retrieves the genomic sequence of a
+duplex's target gene from the [UCSC](https://genome.ucsc.edu/goldenpath/help/mysql.html),
+and caches the transcript sequence for later stability testing.
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
 
