@@ -14,7 +14,7 @@ multiple organisms and prediction algorithms.
 - [Installation requirements](#installation-requirements)
 - [Operations](#operations)
   - [Read duplexes](#read-duplexes)
-  - [Filtrate-duplexes](#filtrate-duplexes)
+  - [Filtrate duplexes](#filtrate-duplexes)
 - [Run the Triplexer](#run-the-triplexer)
   - [Examples](#examples)
 
