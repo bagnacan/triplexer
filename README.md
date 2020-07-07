@@ -178,5 +178,11 @@ triplexer -e 4 -n 1 -f
 triplexer -n 1 -a
 ```
 
+- Perform all aforementioned operations in one run. Do so using 4 parallel
+  processes:
+```
+triplexer -e 4 -n 1 -r -f -a
+```
+
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
 
