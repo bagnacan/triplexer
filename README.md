@@ -14,7 +14,8 @@ multiple organisms and prediction algorithms.
 - [Installation requirements](#installation-requirements)
 - [Operations](#operations)
   - [Read duplexes](#read-duplexes)
-  - [Filtrate-duplexes](#filtrate-duplexes)
+  - [Filtrate duplexes](#filtrate-duplexes)
+  - [Annotate duplexes](#annotate-duplexes)
 - [Run the Triplexer](#run-the-triplexer)
   - [Examples](#examples)
 
@@ -92,6 +93,18 @@ for each target in the set of targets:
 
 
 
+### Annotate duplexes
+
+The in-silico testing of a putative RNA triplex's structural stability can only
+be performed when the nucleotide sequences of both target gene's transcript and
+miRNA pair are given. However, not all dataset provide this information. For
+this reason, the annotate operation retrieves the genomic sequence of a
+duplex's target gene from the [UCSC](https://genome.ucsc.edu/goldenpath/help/mysql.html),
+and caches the transcript sequence for later stability testing.
+<p align="right"><a href="#top">&#x25B2; back to top</a></p>
+
+
+
 ## Run the Triplexer
 
 To run the Triplexer pipeline, you need to run the Triplexer docker container
@@ -140,16 +153,35 @@ namespace:
 
 ### Examples
 
-Read microrna.org's Human hg19 [target site predictions](http://www.microrna.org/microrna/getDownloads.do):
+Read, filtrate and annotate duplexes rely on one another. It is therefore good
+practice to run them in this order, or at least make sure that the underlying
+cache can be of use when running one operation in isolation.  
+
+Here are some examples on how to fill the underlying cache with duplexes from
+the microrna.org namespace.
+
+- Read microrna.org's Human hg19 [target site predictions](http://www.microrna.org/microrna/getDownloads.do):
 ```
 triplexer -n 1 -r
 ```
 
-Filtrate all microrna.org's duplexes by keeping those whose miRNA pairs bind a
-common target gene within the allowed distance range. Do so using 4 parallel
-processes:
+- Filtrate all microrna.org's Human hg19 duplexes by keeping those whose miRNA
+  pairs bind a common target gene within the allowed distance range. Do so
+  using 4 parallel processes:
 ```
 triplexer -e 4 -n 1 -f
+```
+
+- Annotate all microrna.org's Human hg19 duplexes with the transcript sequence
+  of their target genes. Do so using 2 parallel processes:
+```
+triplexer -n 1 -a
+```
+
+- Perform all aforementioned operations in one run. Do so using 4 parallel
+  processes:
+```
+triplexer -e 4 -n 1 -r -f -a
 ```
 
 <p align="right"><a href="#top">&#x25B2; back to top</a></p>
